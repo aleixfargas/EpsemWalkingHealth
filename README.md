@@ -1,10 +1,8 @@
 # EpsemWalkingHealth
 EPSEM student project to Monitorize the walking of people
 
-:author: Adria Fernandez
-:author: Vicenç Pio
-:author: Aleix Fargas
-:company: Epsem-UPC
+Authors: Adria Fernandez, Vicenç Pio and Aleix Fargas
+Company: Epsem-UPC
 
 Jobs:
 -----
