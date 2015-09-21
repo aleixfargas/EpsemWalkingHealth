@@ -5,12 +5,38 @@ Authors: Adria Fernandez, Vicenç Pio and Aleix Fargas
 
 Company: Epsem-UPC
 
-Jobs:
------
+--------------
+Documentation:
+--------------
 
-We have to develop with java for android, so I though that it would be interesting to use an specific "Android-Java-IDE" in order do it.
-If you agree, we would have to find some documentation about the best way to structure the project and which is the best IDE to do that job.
+Hem decidit utilitzar l'IDE de l'Android Studio, que es pot descarregar a: https://developer.android.com/sdk/index.html#top
 
-If is possible, the ideal IDE would have to be compatible with MAC and Linux for compatibility reasons :)
+Aquest IDE ens permet utilitzar el sistema de control de versions git, i ens proporciona un esquelet sòlid per a el projecte que durem a terme.
 
-test commit
+L'app es compondrà de tres parts:
+
+Comunicació Node Sensor (HW)
+----------------------------
+
+En aquest apartat desenvoluparem la comunicació entre el Node Sensor i el Node Personal amb la dificultat afegida de que hem de establir conexió bluetooh amb dos nodes. 
+
+Requisits:
+És necessita un dispositiu mobil amb el SO Android x.0, versions anteriors no suporten la conexió BLE amb dos altres dispositius.
+
+Per a dur a terme aquest procés, utilitzarem les llibreries 
+
+Emmagatzematge temporal de dades del Node Personal
+--------------------------------------------------
+
+Comunicació Node Central (Servidor)
+-----------------------------------
+
+
+
+
+-----------
+Referencies
+-----------
+Infromation about BLE android:
+
+- Android BLE -> https://source.android.com/devices/bluetooth.html
