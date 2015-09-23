@@ -1,5 +1,5 @@
 # EpsemWalkingHealth
-EPSEM student project to Monitorize the walking of people
+EPSEM student project to Monitorize the walking of people.
 
 Authors: Adria Fernandez, Vicenç Pio and Aleix Fargas
 
