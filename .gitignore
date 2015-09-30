@@ -1,4 +1,9 @@
 *.*~
+*.dex
+*.xml
+*.txt
+*.apk
+
 #*#
 
 build.gradle
