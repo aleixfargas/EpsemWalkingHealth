@@ -4,6 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,4 +36,27 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+}
+
+private Button btnConnect;//btnStartStop
+
+@Override
+public void onCreate(Bundle savedInstanceState) {
+
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+    btnConnect = (Button) findViewById(R.id.connect);
+//    btnStartStop = (Button) findViewById(R.id.startstop);
+
+    btnConnect.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (btnConnect.getText().equals("Connect")) {
+                btnConnect.setText("Disconnect");
+            }
+            else{
+                btnConnect.setText("Connect");
+            }
+        }
+    });
 }
