@@ -6,13 +6,9 @@ gradle.properties
 gradlew
 gradlew.bat
 settings.gradle
-
-.idea
-.gradle
 local.properties
-.idea/workspace.xml
-.idea/libraries
+
+.gradle
 .DS_Store
 
-build
 captures
