@@ -10,11 +10,7 @@
 
     <application
         android:allowBackup="true"
-<<<<<<< Updated upstream
         android:icon="@mipmap/icon"
-=======
-        android:icon="@mipmap/EpsemWalkingHealth_ico"
->>>>>>> Stashed changes
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity

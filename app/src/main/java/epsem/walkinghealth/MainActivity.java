@@ -9,11 +9,11 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_main);
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -36,27 +36,27 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-}
 
-private Button btnConnect;//btnStartStop
+    private Button btnConnect;//btnStartStop
 
-@Override
-public void onCreate(Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
 
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
-    btnConnect = (Button) findViewById(R.id.connect);
-//    btnStartStop = (Button) findViewById(R.id.startstop);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        btnConnect = (Button) findViewById(R.id.connect);
+//        btnStartStop = (Button) findViewById(R.id.startstop);
 
-    btnConnect.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (btnConnect.getText().equals("Connect")) {
-                btnConnect.setText("Disconnect");
+        btnConnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (btnConnect.getText().equals("Connect")) {
+                    btnConnect.setText("Disconnect");
+                }
+                else{
+                    btnConnect.setText("Connect");
+                }
             }
-            else{
-                btnConnect.setText("Connect");
-            }
-        }
-    });
+        });
+    }
 }
