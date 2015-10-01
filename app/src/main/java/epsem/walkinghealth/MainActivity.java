@@ -1,6 +1,7 @@
 package epsem.walkinghealth;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +13,11 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
+import java.util.UUID;
+import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 
 public class MainActivity extends Activity {
 
@@ -68,7 +74,55 @@ public class MainActivity extends Activity {
                 }
             }
         });
-
-        private BluetoothManager manager;
     }
+    private BluetoothManager manager;
+    private BluetoothAdapter adapter;
+    private BluetoothDevice device;
+    private BluetoothGatt gatt;
+    private BluetoothGattCallback callback;
+
+    public void enableTXNotification() {
+
+        final UUID UART_SERVICE = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+        final UUID TX_CHAR = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+        final UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+
+        BluetoothGattService UartService = gatt.getService(UART_SERVICE);
+        if (UartService != null) {
+            BluetoothGattCharacteristic TxChar = UartService.getCharacteristic(TX_CHAR);
+            if (TxChar != null) {
+                gatt.setCharacteristicNotification(TxChar, true);
+                BluetoothGattDescriptor descriptor = TxChar.getDescriptor(CCCD);
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                gatt.writeDescriptor(descriptor);
+            }
+        }
+    }
+
+    callback = new BluetoothGattCallback(){
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            if (newState == BluetoothProfile.STATE_CONNECTED){
+                // S'ha establert la connexió amb el perifèric
+                gatt.discoverServices();
+            }
+        }
+
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            // S'han descobert els serveis del perifèric
+            enableTXNotification();
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            // S'ha rebut una notificació, el seu valor s'obté amb characteristic.getValue();
+            characteristic.getValue();
+        }
+    }
+
+    manager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+    adapter = manager.getAdapter();
+    device = adapter.getRemoteDevice(address);
+    gatt = device.connectGatt(this, false, callback);
 }
