@@ -75,11 +75,6 @@ public class MainActivity extends Activity {
             }
         });
     }
-    private BluetoothManager manager;
-    private BluetoothAdapter adapter;
-    private BluetoothDevice device;
-    private BluetoothGatt gatt;
-    private BluetoothGattCallback callback;
 
     public void enableTXNotification() {
 
@@ -99,30 +94,39 @@ public class MainActivity extends Activity {
         }
     }
 
-    callback = new BluetoothGattCallback(){
-        @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            if (newState == BluetoothProfile.STATE_CONNECTED){
-                // S'ha establert la connexió amb el perifèric
-                gatt.discoverServices();
+    private BluetoothManager manager;
+    private BluetoothAdapter adapter;
+    private BluetoothDevice device;
+    private BluetoothGatt gatt;
+    private BluetoothGattCallback callback;
+
+    public void ble() {
+
+        callback = new BluetoothGattCallback() {
+            @Override
+            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+                if (newState == BluetoothProfile.STATE_CONNECTED) {
+                    // S'ha establert la connexió amb el perifèric
+                    gatt.discoverServices();
+                }
+            }
+
+            @Override
+            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+                // S'han descobert els serveis del perifèric
+                enableTXNotification();
+            }
+
+            @Override
+            public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+                // S'ha rebut una notificació, el seu valor s'obté amb characteristic.getValue();
+                characteristic.getValue();
             }
         }
 
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            // S'han descobert els serveis del perifèric
-            enableTXNotification();
-        }
-
-        @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            // S'ha rebut una notificació, el seu valor s'obté amb characteristic.getValue();
-            characteristic.getValue();
-        }
+        manager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+        adapter = manager.getAdapter();
+        device = adapter.getRemoteDevice(address);
+        gatt = device.connectGatt(this, false, callback);
     }
-
-    manager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
-    adapter = manager.getAdapter();
-    device = adapter.getRemoteDevice(address);
-    gatt = device.connectGatt(this, false, callback);
 }
