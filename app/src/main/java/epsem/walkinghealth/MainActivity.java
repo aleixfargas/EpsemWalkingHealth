@@ -14,12 +14,20 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+
+import java.util.ArrayList;
 import java.util.UUID;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 
 public class MainActivity extends Activity {
+
+    public BluetoothManager manager;
+    public BluetoothAdapter adapter;
+    public BluetoothDevice device;
+    public BluetoothGatt gatt;
+    public BluetoothGattCallback callback;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -74,6 +82,7 @@ public class MainActivity extends Activity {
                 }
             }
         });
+        ble();
     }
 
     public void enableTXNotification() {
@@ -94,14 +103,9 @@ public class MainActivity extends Activity {
         }
     }
 
-    private BluetoothManager manager;
-    private BluetoothAdapter adapter;
-    private BluetoothDevice device;
-    private BluetoothGatt gatt;
-    private BluetoothGattCallback callback;
-
     public void ble() {
 
+        final String address = "";
         callback = new BluetoothGattCallback() {
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -120,13 +124,44 @@ public class MainActivity extends Activity {
             @Override
             public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
                 // S'ha rebut una notificació, el seu valor s'obté amb characteristic.getValue();
-                characteristic.getValue();
+                //characteristic.getValue();
             }
-        }
+        };
 
-        manager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
-        adapter = manager.getAdapter();
-        device = adapter.getRemoteDevice(address);
-        gatt = device.connectGatt(this, false, callback);
+        this.manager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+        this.adapter = manager.getAdapter();
+        this.device = adapter.getRemoteDevice(address);
+        this.gatt = device.connectGatt(this, false, callback);
     }
 }
+
+public class AccelData {
+    private long timestamp;
+    private double x;
+    private double y;
+    private double z;
+    private int usuari;
+    private int sensor;
+
+    public AccelData(int sensor, long timestamp, double x, double y, double z) {
+        this.timestamp = timestamp;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.usuari = 1;
+        this.sensor = sensor;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String toString(){
+        return timestamp+","+sensor+","+x+","+y+","+z+";";
+    }
+}
+
+private ArrayList<AccelData> results = new ArrayList<>();;
