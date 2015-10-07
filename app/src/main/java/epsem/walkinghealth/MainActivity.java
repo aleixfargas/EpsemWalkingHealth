@@ -28,6 +28,7 @@ public class MainActivity extends Activity {
     public BluetoothDevice device;
     public BluetoothGatt gatt;
     public BluetoothGattCallback callback;
+    private ArrayList<AccelData> results = new ArrayList<>();;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -105,7 +106,6 @@ public class MainActivity extends Activity {
 
     public void ble() {
 
-        final String address = "";
         callback = new BluetoothGattCallback() {
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -130,38 +130,8 @@ public class MainActivity extends Activity {
 
         this.manager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
         this.adapter = manager.getAdapter();
-        this.device = adapter.getRemoteDevice(address);
+        this.device = adapter.getRemoteDevice("DB:0B:C0:B1:0D:38");
         this.gatt = device.connectGatt(this, false, callback);
     }
 }
 
-public class AccelData {
-    private long timestamp;
-    private double x;
-    private double y;
-    private double z;
-    private int usuari;
-    private int sensor;
-
-    public AccelData(int sensor, long timestamp, double x, double y, double z) {
-        this.timestamp = timestamp;
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.usuari = 1;
-        this.sensor = sensor;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String toString(){
-        return timestamp+","+sensor+","+x+","+y+","+z+";";
-    }
-}
-
-private ArrayList<AccelData> results = new ArrayList<>();;
