@@ -84,6 +84,25 @@ public class MainActivity extends Activity {
             }
         });
         ble();
+        connect("DB:0B:C0:B1:0D:38");
+        disconnect();
+    }
+
+    public boolean connect(final String address) {
+
+        final BluetoothDevice device = adapter.getRemoteDevice(address);
+        if (device == null) {
+            //Log.w("Ap", "Device not found.  Unable to connect.");
+            return false;
+        }
+        gatt = device.connectGatt(getApplicationContext(), false, callback);
+        return true;
+    }
+
+    public void disconnect() {
+        if (adapter != null && gatt != null) {
+            gatt.disconnect();
+        }
     }
 
     public void enableTXNotification() {
