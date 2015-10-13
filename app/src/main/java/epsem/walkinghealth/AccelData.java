@@ -25,7 +25,18 @@ public class AccelData {
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
-
+    public int getSensor() {
+        return sensor;
+    }
+    public void setSensor(int sensor) {
+        this.sensor = sensor;
+    }
+    public long getUsuari() {
+        return usuari;
+    }
+    public void setUsuari(int usuari) {
+        this.usuari = usuari;
+    }
     public String toString(){
         return timestamp+","+sensor+","+x+","+y+","+z+";";
     }
