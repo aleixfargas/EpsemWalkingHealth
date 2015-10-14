@@ -3,6 +3,7 @@ package epsem.walkinghealth;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +18,8 @@ import android.bluetooth.BluetoothProfile;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
@@ -29,6 +32,7 @@ public class MainActivity extends Activity {
     public BluetoothGatt gatt;
     public BluetoothGattCallback callback;
     private ArrayList<AccelData> results = new ArrayList<>();;
+    private boolean connection_status = false;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -56,7 +60,6 @@ public class MainActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         btnConnect = (Button) findViewById(R.id.connect);
@@ -66,9 +69,29 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (btnConnect.getText().equals("Connect")) {
+                    Log.d("onCreate", "init");
+                    ble();
+                    Log.d("onCreate", "fet ble");
+//                    connect("DB:0B:C0:B1:0D:38");
+//                    connect("F5:8B:DF:1F:95:B0");
+//                    btnConnect.setText("Disconect");
+                    connection_status=connect("F5:8B:DF:1F:95:B0");
+                    //connection_status=connect("DB:0B:C0:B1:0D:38");
+                    Log.d("onCreate","fet connect");
+                    Log.d("onClick","connect value= " + connection_status);
                     btnConnect.setText("Disconnect");
+                    if (!connection_status) {
+                        btnConnect.setText("Failed connection"); //Pop up!
+                        try {
+                            TimeUnit.SECONDS.sleep(1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        btnConnect.setText("Connect");
+                    }
                 }
-                else{
+                else {
+                    disconnect();
                     btnConnect.setText("Connect");
                 }
             }
@@ -83,16 +106,15 @@ public class MainActivity extends Activity {
                 }
             }
         });
-        ble();
-        connect("DB:0B:C0:B1:0D:38");
-        disconnect();
     }
 
     public boolean connect(final String address) {
-
+        Log.d("connect","connectat");
         final BluetoothDevice device = adapter.getRemoteDevice(address);
+
+        Log.d("connect", "device");
         if (device == null) {
-            //Log.w("Ap", "Device not found.  Unable to connect.");
+            Log.w("Ap", "Device not found.  Unable to connect.");
             return false;
         }
         gatt = device.connectGatt(getApplicationContext(), false, callback);
@@ -149,7 +171,8 @@ public class MainActivity extends Activity {
 
         this.manager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
         this.adapter = manager.getAdapter();
-        this.device = adapter.getRemoteDevice("DB:0B:C0:B1:0D:38");
+        this.device = adapter.getRemoteDevice("F5:8B:DF:1F:95:B0");
+        //this.device = adapter.getRemoteDevice("DB:0B:C0:B1:0D:38");
         this.gatt = device.connectGatt(this, false, callback);
     }
 }
