@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.widget.LinearLayout;
 
 public class MainActivity extends Activity {
 
@@ -64,6 +65,12 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         btnConnect = (Button) findViewById(R.id.connect);
         btnStartStop = (Button) findViewById(R.id.startstop);
+
+        GraphChart graph = new GraphChart(getBaseContext());
+        graph.clear();
+        layout = (LinearLayout) findViewById(R.id.graph_layout);
+        layout.addView(graph.getView());
+
 
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override

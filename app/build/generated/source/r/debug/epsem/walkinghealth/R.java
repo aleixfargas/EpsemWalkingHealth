@@ -1586,7 +1586,6 @@ containing a value of this type.
         public static final int alertTitle=0x7f0c002e;
         public static final int always=0x7f0c001b;
         public static final int beginning=0x7f0c0018;
-        public static final int button=0x7f0c0050;
         public static final int buttonPanel=0x7f0c0034;
         public static final int cancel_action=0x7f0c0052;
         public static final int checkbox=0x7f0c0036;
@@ -1604,6 +1603,7 @@ containing a value of this type.
         public static final int end_padder=0x7f0c005d;
         public static final int expand_activities_button=0x7f0c0025;
         public static final int expanded_menu=0x7f0c0035;
+        public static final int graph_layout=0x7f0c0050;
         public static final int home=0x7f0c0004;
         public static final int homeAsUp=0x7f0c000d;
         public static final int icon=0x7f0c0029;
