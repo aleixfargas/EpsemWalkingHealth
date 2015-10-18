@@ -41,17 +41,40 @@ public class MainActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        android.widget.LinearLayout layout;
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        createConnectButton();
+        createGraph();
+        createStartButton();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+//----------------START CONNECT BUTTON FUNCTIONS----------------
+
+    public void createConnectButton(){
         btnConnect = (Button) findViewById(R.id.connect);
-        btnStartStop = (Button) findViewById(R.id.startstop);
-
-        graph.clear();
-        layout = (LinearLayout) findViewById(R.id.graph_layout);
-        layout.addView(graph.getView());
-
 
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,38 +106,6 @@ public class MainActivity extends Activity {
                 }
             }
         });
-        btnStartStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (btnStartStop.getText().equals("Start")) {
-                    btnStartStop.setText("Stop");
-                } else {
-                    btnStartStop.setText("Start");
-                }
-            }
-        });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     public boolean connect(final String address) {
@@ -135,6 +126,40 @@ public class MainActivity extends Activity {
             gatt.disconnect();
         }
     }
+
+//----------------END CONNECT BUTTON FUNCTIONS----------------
+//----------------START GRAPH FUNCTIONS----------------
+
+    public void createGraph(){
+        android.widget.LinearLayout layout;
+
+        graph.clear();
+        layout = (LinearLayout) findViewById(R.id.graph_layout);
+        layout.addView(graph.getView());
+    }
+
+//----------------END GRAPH FUNCTIONS----------------
+//----------------START START/STOP FUNCTIONS----------------
+
+    public void createStartButton(){
+        btnStartStop = (Button) findViewById(R.id.startstop);
+
+        btnStartStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (btnStartStop.getText().equals("Start")) {
+                    btnStartStop.setText("Stop");
+                } else {
+                    btnStartStop.setText("Start");
+                }
+            }
+        });
+    }
+
+//----------------END START/STOP FUNCTIONS----------------
+
+
+
 
     public void enableTXNotification() {
 
