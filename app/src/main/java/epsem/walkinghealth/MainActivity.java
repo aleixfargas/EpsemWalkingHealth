@@ -158,9 +158,6 @@ public class MainActivity extends Activity {
 
 //----------------END START/STOP FUNCTIONS----------------
 
-
-
-
     public void enableTXNotification() {
 
         final UUID UART_SERVICE = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
@@ -180,7 +177,6 @@ public class MainActivity extends Activity {
     }
 
     public void ble() {
-
         callback = new BluetoothGattCallback() {
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
