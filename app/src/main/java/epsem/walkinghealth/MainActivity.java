@@ -16,6 +16,7 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +27,8 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.widget.LinearLayout;
 
 public class MainActivity extends Activity {
-
+    public boolean started;
+    public GraphChart graph = new GraphChart(getBaseContext());
     public BluetoothManager manager;
     public BluetoothAdapter adapter;
     public BluetoothDevice device;
@@ -34,6 +36,64 @@ public class MainActivity extends Activity {
     public BluetoothGattCallback callback;
     private ArrayList<AccelData> results = new ArrayList<>();
     private boolean connection_status = false;
+
+    private Button btnConnect, btnStartStop;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        android.widget.LinearLayout layout;
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        btnConnect = (Button) findViewById(R.id.connect);
+        btnStartStop = (Button) findViewById(R.id.startstop);
+
+        graph.clear();
+        layout = (LinearLayout) findViewById(R.id.graph_layout);
+        layout.addView(graph.getView());
+
+
+        btnConnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (btnConnect.getText().equals("Connect")) {
+                    Log.d("onCreate", "init");
+                    ble();
+                    Log.d("onCreate", "fet ble");
+//                    connect("DB:0B:C0:B1:0D:38");
+//                    connect("F5:8B:DF:1F:95:B0");
+//                    btnConnect.setText("Disconect");
+                    connection_status = connect("F5:8B:DF:1F:95:B0");
+                    //connection_status=connect("DB:0B:C0:B1:0D:38");
+                    Log.d("onCreate", "fet connect");
+                    Log.d("onClick", "connect value= " + connection_status);
+                    btnConnect.setText("Disconnect");
+                    if (!connection_status) {
+                        btnConnect.setText("Failed connection"); //Pop up!
+                        try {
+                            TimeUnit.SECONDS.sleep(1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        btnConnect.setText("Connect");
+                    }
+                } else {
+                    disconnect();
+                    btnConnect.setText("Connect");
+                }
+            }
+        });
+        btnStartStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (btnStartStop.getText().equals("Start")) {
+                    btnStartStop.setText("Stop");
+                } else {
+                    btnStartStop.setText("Start");
+                }
+            }
+        });
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -55,66 +115,6 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private Button btnConnect, btnStartStop;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        android.widget.LinearLayout layout;
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        btnConnect = (Button) findViewById(R.id.connect);
-        btnStartStop = (Button) findViewById(R.id.startstop);
-
-        GraphChart graph = new GraphChart(getBaseContext());
-        graph.clear();
-        layout = (LinearLayout) findViewById(R.id.graph_layout);
-        layout.addView(graph.getView());
-
-
-        btnConnect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (btnConnect.getText().equals("Connect")) {
-                    Log.d("onCreate", "init");
-                    ble();
-                    Log.d("onCreate", "fet ble");
-//                    connect("DB:0B:C0:B1:0D:38");
-//                    connect("F5:8B:DF:1F:95:B0");
-//                    btnConnect.setText("Disconect");
-                    connection_status=connect("F5:8B:DF:1F:95:B0");
-                    //connection_status=connect("DB:0B:C0:B1:0D:38");
-                    Log.d("onCreate","fet connect");
-                    Log.d("onClick","connect value= " + connection_status);
-                    btnConnect.setText("Disconnect");
-                    if (!connection_status) {
-                        btnConnect.setText("Failed connection"); //Pop up!
-                        try {
-                            TimeUnit.SECONDS.sleep(1);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        btnConnect.setText("Connect");
-                    }
-                }
-                else {
-                    disconnect();
-                    btnConnect.setText("Connect");
-                }
-            }
-        });
-        btnStartStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (btnStartStop.getText().equals("Start")) {
-                    btnStartStop.setText("Stop");
-                } else {
-                    btnStartStop.setText("Start");
-                }
-            }
-        });
     }
 
     public boolean connect(final String address) {
@@ -174,7 +174,16 @@ public class MainActivity extends Activity {
             @Override
             public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
                 // S'ha rebut una notificació, el seu valor s'obté amb characteristic.getValue();
-                //characteristic.getValue();
+                if (started){
+                    byte[] data = characteristic.getValue();
+
+                    graph.add(System.currentTimeMillis(), toDouble(data));
+                    graph.update();
+                }
+            }
+
+            public double toDouble(byte[] bytes){
+                return ByteBuffer.wrap(bytes).getDouble();
             }
         };
 

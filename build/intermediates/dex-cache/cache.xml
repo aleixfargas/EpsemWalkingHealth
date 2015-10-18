@@ -2,11 +2,11 @@
 <items version="2" >
 
     <item
-        jar="/Users/aleix/AndroidStudioProjects/WalkingHealth/app/libs/achartengine-1.1.0.jar"
+        jar="/home/vicenc/WalkingHealth/app/libs/achartengine-1.1.0.jar"
         jumboMode="false"
         revision="23.0.1"
         sha1="9932e3fb9fbe54e80873e77f72a99f79e33b3250">
-        <dex dex="/Users/aleix/AndroidStudioProjects/WalkingHealth/app/build/intermediates/pre-dexed/debug/achartengine-1.1.0-c38194b6c007fdacb54bf42f2e127da35496ac06.jar" />
+        <dex dex="/home/vicenc/WalkingHealth/app/build/intermediates/pre-dexed/debug/achartengine-1.1.0-baeccc2fca4878b9b6ca9f337369d671810f06f5.jar" />
     </item>
 
 </items>
