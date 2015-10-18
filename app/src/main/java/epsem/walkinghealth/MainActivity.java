@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
     public BluetoothDevice device;
     public BluetoothGatt gatt;
     public BluetoothGattCallback callback;
-    private ArrayList<AccelData> results = new ArrayList<>();;
+    private ArrayList<AccelData> results = new ArrayList<>();
     private boolean connection_status = false;
 
     @Override
@@ -61,6 +61,8 @@ public class MainActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        android.widget.LinearLayout layout;
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         btnConnect = (Button) findViewById(R.id.connect);
