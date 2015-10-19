@@ -28,15 +28,16 @@ import android.widget.LinearLayout;
 
 public class MainActivity extends Activity {
     public boolean started;
+    public String MACaddr = "F5:8B:DF:1F:95:B0";
     public GraphChart graph = new GraphChart(getBaseContext());
     public BluetoothManager manager;
     public BluetoothAdapter adapter;
     public BluetoothDevice device;
     public BluetoothGatt gatt;
     public BluetoothGattCallback callback;
+
     private ArrayList<AccelData> results = new ArrayList<>();
     private boolean connection_status = false;
-
     private Button btnConnect, btnStartStop;
 
     @Override
@@ -80,50 +81,46 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (btnConnect.getText().equals("Connect")) {
-                    Log.d("onCreate", "init");
-                    ble();
-                    Log.d("onCreate", "fet ble");
-//                    connect("DB:0B:C0:B1:0D:38");
-//                    connect("F5:8B:DF:1F:95:B0");
-//                    btnConnect.setText("Disconect");
-                    connection_status = connect("F5:8B:DF:1F:95:B0");
-                    //connection_status=connect("DB:0B:C0:B1:0D:38");
-                    Log.d("onCreate", "fet connect");
-                    Log.d("onClick", "connect value= " + connection_status);
-                    btnConnect.setText("Disconnect");
-                    if (!connection_status) {
+                    if (connect()) {
+                        btnConnect.setText("Disconnect");
+                    }
+                    else{
                         btnConnect.setText("Failed connection"); //Pop up!
                         try {
                             TimeUnit.SECONDS.sleep(1);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                    }
+                }
+                else {
+                    if(disconnect()) {
                         btnConnect.setText("Connect");
                     }
-                } else {
-                    disconnect();
-                    btnConnect.setText("Connect");
+                    else{
+                        Log.e("Disconnect","NOT DISCONNECTED");
+                    }
                 }
             }
         });
     }
 
-    public boolean connect(final String address) {
-        Log.d("connect","connectat");
-        final BluetoothDevice device = adapter.getRemoteDevice(address);
-
-        Log.d("connect", "device");
-        if (device == null) {
+    public boolean connect() {
+        ble();
+        if (this.device != null) {
             Log.w("Ap", "Device not found.  Unable to connect.");
-            return false;
+            return true;
         }
-        gatt = device.connectGatt(getApplicationContext(), false, callback);
-        return true;
+        return false;
     }
 
-    public void disconnect() {
-        if (adapter != null && gatt != null) {
-            gatt.disconnect();
+    public boolean disconnect() {
+        if (this.adapter != null && this.gatt != null) {
+            this.gatt.disconnect();
+            return true;
+        }
+        else{
+            return false;
         }
     }
 
@@ -133,9 +130,9 @@ public class MainActivity extends Activity {
     public void createGraph(){
         android.widget.LinearLayout layout;
 
-        graph.clear();
+        this.graph.clear();
         layout = (LinearLayout) findViewById(R.id.graph_layout);
-        layout.addView(graph.getView());
+        layout.addView(this.graph.getView());
     }
 
 //----------------END GRAPH FUNCTIONS----------------
@@ -159,7 +156,6 @@ public class MainActivity extends Activity {
 //----------------END START/STOP FUNCTIONS----------------
 
     public void enableTXNotification() {
-
         final UUID UART_SERVICE = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
         final UUID TX_CHAR = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
         final UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
@@ -210,8 +206,7 @@ public class MainActivity extends Activity {
 
         this.manager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
         this.adapter = manager.getAdapter();
-        this.device = adapter.getRemoteDevice("F5:8B:DF:1F:95:B0");
-        //this.device = adapter.getRemoteDevice("DB:0B:C0:B1:0D:38");
+        this.device = adapter.getRemoteDevice(this.MACaddr);
         this.gatt = device.connectGatt(this, false, callback);
     }
 }
