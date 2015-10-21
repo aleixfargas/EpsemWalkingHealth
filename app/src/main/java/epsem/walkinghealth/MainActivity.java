@@ -3,6 +3,7 @@ package epsem.walkinghealth;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +17,10 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -156,6 +161,30 @@ public class MainActivity extends Activity {
     }
 
 //----------------END START/STOP FUNCTIONS----------------
+// ----------------START WRITE FILE FUNCTIONS-------------
+
+    private void writeFile(){
+
+        File sdCard = Environment.getExternalStorageDirectory();
+        File file = new File(sdCard, "mybackup.txt");
+        Writer output = null;
+
+        try {
+            output = new BufferedWriter(new FileWriter(file));
+            for (AccelData data : results){
+                output.write(data.toString());
+            }
+            if (output != null){
+                output.close();
+            }
+        }
+        catch (Exception e){
+            Log.d("MyAct", "Exception: " + e.getMessage());
+        }
+    }
+
+// ----------------END WRITE FILE FUNCTIONS-------------
+
 
     public void enableTXNotification() {
         final UUID UART_SERVICE = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
