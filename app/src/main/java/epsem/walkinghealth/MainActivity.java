@@ -228,7 +228,7 @@ public class MainActivity extends Activity {
                 // S'ha rebut una notificació, el seu valor s'obté amb characteristic.getValue();
                 if (started){
                     byte[] data = characteristic.getValue();
-
+                    //writeFile();
                     graph.add(System.currentTimeMillis(), toDouble(data));
                     graph.update();
                 }
