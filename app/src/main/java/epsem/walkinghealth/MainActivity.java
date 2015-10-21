@@ -29,7 +29,8 @@ import android.widget.LinearLayout;
 public class MainActivity extends Activity {
     public boolean started;
     public String MACaddr = "F5:8B:DF:1F:95:B0";
-    public GraphChart graph = new GraphChart(getBaseContext());
+//    public GraphChart graph = new GraphChart(getBaseContext());
+    public GraphChart graph;
     public BluetoothManager manager;
     public BluetoothAdapter adapter;
     public BluetoothDevice device;
@@ -81,7 +82,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (btnConnect.getText().equals("Connect")) {
-                    if (connect()) {
+                    if (connect()){
                         btnConnect.setText("Disconnect");
                     }
                     else{
@@ -107,11 +108,11 @@ public class MainActivity extends Activity {
 
     public boolean connect() {
         ble();
-        if (this.device != null) {
+        if (this.device == null) {
             Log.w("Ap", "Device not found.  Unable to connect.");
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     public boolean disconnect() {
@@ -130,6 +131,7 @@ public class MainActivity extends Activity {
     public void createGraph(){
         android.widget.LinearLayout layout;
 
+        this.graph = new GraphChart(getBaseContext());
         this.graph.clear();
         layout = (LinearLayout) findViewById(R.id.graph_layout);
         layout.addView(this.graph.getView());
@@ -179,6 +181,10 @@ public class MainActivity extends Activity {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     // S'ha establert la connexió amb el perifèric
                     gatt.discoverServices();
+                    Log.d("BLE","connection stablished");
+                }
+                else if(newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    Log.d("BLE","connection losed");
                 }
             }
 
