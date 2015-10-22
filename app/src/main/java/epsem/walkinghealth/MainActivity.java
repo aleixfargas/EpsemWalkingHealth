@@ -33,8 +33,9 @@ import android.widget.LinearLayout;
 
 public class MainActivity extends Activity {
     public boolean started;
-    public String MACaddr = "F5:8B:DF:1F:95:B0";
-//    public GraphChart graph = new GraphChart(getBaseContext());
+    //public String MACaddr = "F5:8B:DF:1F:95:B0";
+    public String MACaddr = "DB:0B:C0:B1:0D:38";
+    //    public GraphChart graph = new GraphChart(getBaseContext());
     public GraphChart graph;
     public BluetoothManager manager;
     public BluetoothAdapter adapter;
@@ -136,8 +137,8 @@ public class MainActivity extends Activity {
     public void createGraph(){
         android.widget.LinearLayout layout;
 
-        this.graph = new GraphChart(getBaseContext());
-        this.graph.clear();
+        graph = new GraphChart(getBaseContext());
+        graph.clear();
         layout = (LinearLayout) findViewById(R.id.graph_layout);
         layout.addView(this.graph.getView());
     }
@@ -210,10 +211,10 @@ public class MainActivity extends Activity {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     // S'ha establert la connexió amb el perifèric
                     gatt.discoverServices();
-                    Log.d("BLE","connection stablished");
+                    Log.d("BLE","connection established");
                 }
                 else if(newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    Log.d("BLE","connection losed");
+                    Log.d("BLE","connection lost");
                 }
             }
 
@@ -228,8 +229,9 @@ public class MainActivity extends Activity {
                 // S'ha rebut una notificació, el seu valor s'obté amb characteristic.getValue();
                 if (started){
                     byte[] data = characteristic.getValue();
+                    Log.d("onCharChanged","dades radino: " + data);
                     //writeFile();
-                    graph.add(System.currentTimeMillis(), toDouble(data));
+                    graph.add(System.currentTimeMillis(), 4.0);
                     graph.update();
                 }
             }

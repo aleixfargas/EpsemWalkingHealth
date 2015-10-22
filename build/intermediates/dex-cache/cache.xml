@@ -2,39 +2,39 @@
 <items version="2" >
 
     <item
-        jar="/Users/aleix/AndroidStudioProjects/WalkingHealth/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.0.1/jars/classes.jar"
+        jar="/home/vicenc/WalkingHealth/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.0.1/jars/classes.jar"
         jumboMode="false"
         revision="23.0.1"
         sha1="c31e21b53ff2f74664e498248d01453a32e32d48">
-        <dex dex="/Users/aleix/AndroidStudioProjects/WalkingHealth/app/build/intermediates/pre-dexed/debug/classes-eeb790a609acbb96f2d76a309a8002a7f0840d51.jar" />
+        <dex dex="/home/vicenc/WalkingHealth/app/build/intermediates/pre-dexed/debug/classes-a039ac6ec00ceccec21fcfe6ee92cb1f81e54fb7.jar" />
     </item>
     <item
-        jar="/Users/aleix/AndroidStudioProjects/WalkingHealth/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.0.1/jars/libs/internal_impl-23.0.1.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="aa92916125166649d8ad4ba3940c3dd7515596d3">
-        <dex dex="/Users/aleix/AndroidStudioProjects/WalkingHealth/app/build/intermediates/pre-dexed/debug/internal_impl-23.0.1-2a5129562b4c7d2dfb18bac51666aedd0babe905.jar" />
-    </item>
-    <item
-        jar="/Users/aleix/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/23.0.1/support-annotations-23.0.1.jar"
+        jar="/home/vicenc/Android/Sdk/extras/android/m2repository/com/android/support/support-annotations/23.0.1/support-annotations-23.0.1.jar"
         jumboMode="false"
         revision="23.0.1"
         sha1="1fce89a6428c51467090d7f424e4c9c3dbd55f7e">
-        <dex dex="/Users/aleix/AndroidStudioProjects/WalkingHealth/app/build/intermediates/pre-dexed/debug/support-annotations-23.0.1-eae452f6729a5156718647f8b21c3ceba9949186.jar" />
+        <dex dex="/home/vicenc/WalkingHealth/app/build/intermediates/pre-dexed/debug/support-annotations-23.0.1-186576ae4a6193c35816f2f48d5d5d79199ead9a.jar" />
     </item>
     <item
-        jar="/Users/aleix/AndroidStudioProjects/WalkingHealth/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/jars/classes.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="d86429b0f0b3f3cafbeb78dda1b9d89119ccb05d">
-        <dex dex="/Users/aleix/AndroidStudioProjects/WalkingHealth/app/build/intermediates/pre-dexed/debug/classes-84caffb95fa5d214c8d95aa9b1015dbfb78a0d06.jar" />
-    </item>
-    <item
-        jar="/Users/aleix/AndroidStudioProjects/WalkingHealth/app/libs/achartengine-1.1.0.jar"
+        jar="/home/vicenc/WalkingHealth/app/libs/achartengine-1.1.0.jar"
         jumboMode="false"
         revision="23.0.1"
         sha1="9932e3fb9fbe54e80873e77f72a99f79e33b3250">
-        <dex dex="/Users/aleix/AndroidStudioProjects/WalkingHealth/app/build/intermediates/pre-dexed/debug/achartengine-1.1.0-c38194b6c007fdacb54bf42f2e127da35496ac06.jar" />
+        <dex dex="/home/vicenc/WalkingHealth/app/build/intermediates/pre-dexed/debug/achartengine-1.1.0-baeccc2fca4878b9b6ca9f337369d671810f06f5.jar" />
+    </item>
+    <item
+        jar="/home/vicenc/WalkingHealth/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="d86429b0f0b3f3cafbeb78dda1b9d89119ccb05d">
+        <dex dex="/home/vicenc/WalkingHealth/app/build/intermediates/pre-dexed/debug/classes-52dbeb7d7a3bbdaa6f8cd18db1485c1e1073514f.jar" />
+    </item>
+    <item
+        jar="/home/vicenc/WalkingHealth/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.0.1/jars/libs/internal_impl-23.0.1.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="aa92916125166649d8ad4ba3940c3dd7515596d3">
+        <dex dex="/home/vicenc/WalkingHealth/app/build/intermediates/pre-dexed/debug/internal_impl-23.0.1-a5244ee589df7e47e2f7aedef66518d73d6a7c19.jar" />
     </item>
 
 </items>
