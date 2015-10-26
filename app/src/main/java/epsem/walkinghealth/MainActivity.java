@@ -32,7 +32,7 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.widget.LinearLayout;
 
 public class MainActivity extends Activity {
-    public boolean started;
+    public boolean started = false;
     //public String MACaddr = "F5:8B:DF:1F:95:B0";
     public String MACaddr = "DB:0B:C0:B1:0D:38";
     //    public GraphChart graph = new GraphChart(getBaseContext());
@@ -153,8 +153,10 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (btnStartStop.getText().equals("Start")) {
+                    started = true;
                     btnStartStop.setText("Stop");
                 } else {
+                    started = false;
                     btnStartStop.setText("Start");
                 }
             }
@@ -165,8 +167,8 @@ public class MainActivity extends Activity {
 // ----------------START WRITE FILE FUNCTIONS-------------
 
     private void writeFile(){
-
         File sdCard = Environment.getExternalStorageDirectory();
+        Log.e("SD FileDir","sdCard location: "+sdCard);
         File file = new File(sdCard, "mybackup.txt");
         Writer output = null;
 
@@ -185,7 +187,6 @@ public class MainActivity extends Activity {
     }
 
 // ----------------END WRITE FILE FUNCTIONS-------------
-
 
     public void enableTXNotification() {
         final UUID UART_SERVICE = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
@@ -228,11 +229,19 @@ public class MainActivity extends Activity {
             public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
                 // S'ha rebut una notificació, el seu valor s'obté amb characteristic.getValue();
                 if (started){
+                    //Rebuda de dades
                     byte[] data = characteristic.getValue();
-                    Log.d("onCharChanged", "dades radino: " + toDouble(data));
-                    //writeFile();
-                    //graph.add(System.currentTimeMillis(), toDouble(data));
-                    graph.add(System.currentTimeMillis(), 4.0);
+                    Log.e("onCharChanged", "dades radino: " + (double) (data[0]));//toDouble(data));
+
+                    // Processament de dades
+                    AccelData AD = new AccelData(1, System.currentTimeMillis(), data[0], data[1], data[2]);
+
+                    //Emmagatzematge de dades
+                    results.add(AD);
+                    writeFile();
+
+                    //Visualització dades
+                    graph.add(System.currentTimeMillis(), (double)(data[0]));
                     graph.update();
                 }
             }
