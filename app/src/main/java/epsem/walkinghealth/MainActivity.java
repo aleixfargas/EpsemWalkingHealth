@@ -231,7 +231,7 @@ public class MainActivity extends Activity {
                 if (started){
                     //Rebuda de dades
                     byte[] data = characteristic.getValue();
-                    Log.e("onCharChanged", "dades radino: " + (double) (data[0]));//toDouble(data));
+                    Log.e("onCharChanged", "dades radino: [" + (double) (data[0]) + ", " + (double) (data[1])+ ", " + (double) (data[2]) + "]");//toDouble(data));
 
                     // Processament de dades
                     AccelData AD = new AccelData(1, System.currentTimeMillis(), data[0], data[1], data[2]);
@@ -244,10 +244,6 @@ public class MainActivity extends Activity {
                     graph.add(System.currentTimeMillis(), (double)(data[0]));
                     graph.update();
                 }
-            }
-
-            public double toDouble(byte[] bytes){
-                return ByteBuffer.wrap(bytes).getDouble();
             }
         };
 
