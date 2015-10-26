@@ -20,6 +20,7 @@ import android.bluetooth.BluetoothProfile;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
@@ -188,46 +189,86 @@ public class MainActivity extends Activity {
             // Can't read or write
             mExternalStorageAvailable = mExternalStorageWriteable = false;
         }
-        Log.e("Podem escriure i/o llegir?","External Media: readable="+mExternalStorageAvailable+" writable="+mExternalStorageWriteable);
+        Log.e("Podem escriure/llegir?","External Media: readable="+mExternalStorageAvailable+" writable="+mExternalStorageWriteable);
+    }
+
+    private String getStringDateTime(){
+        // (1) get today's date
+        Date today = Calendar.getInstance().getTime();
+        // (2) create a date "formatter" (the date format we want)
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        // (3) create a new String using the date format we want
+
+        return formatter.format(today);
+    }
+
+    private BufferedWriter createNewFile(File newFolder, File file, String now) {
+        BufferedWriter newFile_output = null;
+
+        Log.e("exists", "The file no exists so we create it");
+        file = new File(newFolder, now + "_data.txt");
+        try{
+            file.createNewFile();
+            newFile_output = new BufferedWriter(new FileWriter(file));
+        }
+        catch(Exception IOException){
+            Log.e("new file error", "Cannot create newFile");
+        }
+
+        return newFile_output;
+    }
+
+    private BufferedWriter checkFolderFiles(File newFolder, String now){
+        BufferedWriter file_output = null;
+
+        File[] listOfFiles = newFolder.listFiles();
+        for (File f : listOfFiles) {
+            if (f.isFile()) {
+                if (f.getName() == now+"_data.txt"){
+                    try {
+                        file_output = new BufferedWriter(new FileWriter(f));
+                    } catch (Exception IOException) {
+                        Log.e("old file error","Cannot open oldFile");
+                    }
+                }
+            }
+        }
+
+        return file_output;
     }
 
     private void writeFile(){
-        checkExternalMedia();
-        /*
-        //TRYING TO GET DATETIME
-        String date = new DateFormat("yyyyMMdd") {
-            public StringBuffer format(Date date, StringBuffer buffer, FieldPosition field) {
-                return null;
-            }
+        Writer output = null;
+        File file = null;
 
-            public Date parse(String string, ParsePosition position) {
-                return null;
-            }
-        }.format(Calendar.getInstance().getTime());
-         */
+        //return the current date String formatted
+        String now = getStringDateTime();
+
+        //is able to writte files?
+        checkExternalMedia();
+
         try {
             File newFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
             if (!newFolder.exists()) {
                 newFolder.mkdir();
             }
             try {
-                //change to date-format name
-                File file = new File(newFolder, "DataBackup.txt");
-                //--------------------------
-                if(!file.exists()) {
-                    file.createNewFile();
+                //checking Folder in order to find if we have the same datetime file if founded, create a new FileWritter
+                output = checkFolderFiles(newFolder, now);
+
+                if(output != null) {
+                    //file not exists, so we create it and create a new FileWritter
+                    output = createNewFile(newFolder, file, now);
                 }
 
-                Writer output = null;
                 try {
-                    output = new BufferedWriter(new FileWriter(file));
                     for (AccelData data : results) {
                         output.write(data.toString());
                     }
                     if (output != null) {
+                        output.flush();
                         output.close();
                     }
-
                 } catch (Exception e) {
                     Log.e("Write in file", "Exception: " + e.getMessage());
                 }
@@ -238,7 +279,8 @@ public class MainActivity extends Activity {
             System.out.println("Create/open folder: " + e);
         }
 
-        /*------- OLD -------
+        /*
+        ------- OLD -------
         File sdCard = Environment.getExternalStorageDirectory();
         //String WH = sdCard + "/WalkingHealth";
         Log.e("SD FileDir","sdCard location: "+sdCard);
@@ -258,6 +300,7 @@ public class MainActivity extends Activity {
         catch (Exception e){
             Log.d("MyAct", "Exception: " + e.getMessage());
         }
+        -------------------
         */
     }
 
