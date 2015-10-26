@@ -247,36 +247,29 @@ public class MainActivity extends Activity {
         //is able to writte files?
         checkExternalMedia();
 
+        File newFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
+        if (!newFolder.exists()) {
+            newFolder.mkdir();
+        }
+
+        //checking Folder in order to find if we have the same datetime file if founded, create a new FileWritter
+        output = checkFolderFiles(newFolder, now);
+
+        if(output != null) {
+            //file not exists, so we create it and create a new FileWritter
+            output = createNewFile(newFolder, file, now);
+        }
+
         try {
-            File newFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
-            if (!newFolder.exists()) {
-                newFolder.mkdir();
+            for (AccelData data : results) {
+                output.write(data.toString());
             }
-            try {
-                //checking Folder in order to find if we have the same datetime file if founded, create a new FileWritter
-                output = checkFolderFiles(newFolder, now);
-
-                if(output != null) {
-                    //file not exists, so we create it and create a new FileWritter
-                    output = createNewFile(newFolder, file, now);
-                }
-
-                try {
-                    for (AccelData data : results) {
-                        output.write(data.toString());
-                    }
-                    if (output != null) {
-                        output.flush();
-                        output.close();
-                    }
-                } catch (Exception e) {
-                    Log.e("Write in file", "Exception: " + e.getMessage());
-                }
-            } catch (Exception ex) {
-                System.out.println("Create file " + ex);
+            if (output != null) {
+                output.flush();
+                output.close();
             }
         } catch (Exception e) {
-            System.out.println("Create/open folder: " + e);
+            Log.e("Write in file", "Exception: " + e.getMessage());
         }
 
         /*
