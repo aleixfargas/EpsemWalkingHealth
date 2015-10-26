@@ -166,10 +166,29 @@ public class MainActivity extends Activity {
 //----------------END START/STOP FUNCTIONS----------------
 // ----------------START WRITE FILE FUNCTIONS-------------
 
+    private void checkExternalMedia() {
+        boolean mExternalStorageAvailable = false;
+        boolean mExternalStorageWriteable = false;
+        String state = Environment.getExternalStorageState();
+
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            // Can read and write the media
+            mExternalStorageAvailable = mExternalStorageWriteable = true;
+        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            // Can only read the media
+            mExternalStorageAvailable = true;
+            mExternalStorageWriteable = false;
+        } else {
+            // Can't read or write
+            mExternalStorageAvailable = mExternalStorageWriteable = false;
+        }
+    }
+
     private void writeFile(){
+        checkExternalMedia();
         File sdCard = Environment.getExternalStorageDirectory();
         Log.e("SD FileDir","sdCard location: "+sdCard);
-        File file = new File(sdCard, "mybackup.txt");
+        File file = new File(sdCard + "WalkingHealth", "mybackup.txt");
         Writer output = null;
 
         try {
