@@ -87,27 +87,27 @@ public class MainActivity extends Activity {
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (btnConnect.getText().equals("Connect")) {
-                    if (connect()){
-                        btnConnect.setText("Disconnect");
-                    }
-                    else{
-                        btnConnect.setText("Failed connection"); //Pop up!
-                        try {
-                            TimeUnit.SECONDS.sleep(1);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+            if (btnConnect.getText().equals("Connect")) {
+                if (connect()){
+                    btnConnect.setText("Disconnect");
+                }
+                else{
+                    btnConnect.setText("Failed connection"); //Pop up!
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
-                else {
-                    if(disconnect()) {
-                        btnConnect.setText("Connect");
-                    }
-                    else{
-                        Log.e("Disconnect","NOT DISCONNECTED");
-                    }
+            }
+            else {
+                if(disconnect()) {
+                    btnConnect.setText("Connect");
                 }
+                else{
+                    Log.e("Disconnect","NOT DISCONNECTED");
+                }
+            }
             }
         });
     }
@@ -229,8 +229,9 @@ public class MainActivity extends Activity {
                 // S'ha rebut una notificació, el seu valor s'obté amb characteristic.getValue();
                 if (started){
                     byte[] data = characteristic.getValue();
-                    Log.d("onCharChanged","dades radino: " + data);
+                    Log.d("onCharChanged", "dades radino: " + toDouble(data));
                     //writeFile();
+                    //graph.add(System.currentTimeMillis(), toDouble(data));
                     graph.add(System.currentTimeMillis(), 4.0);
                     graph.update();
                 }
