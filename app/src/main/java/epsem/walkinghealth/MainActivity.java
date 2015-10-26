@@ -22,7 +22,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
 import java.nio.ByteBuffer;
+import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -187,7 +193,52 @@ public class MainActivity extends Activity {
 
     private void writeFile(){
         checkExternalMedia();
+        /*
+        //TRYING TO GET DATETIME
+        String date = new DateFormat("yyyyMMdd") {
+            public StringBuffer format(Date date, StringBuffer buffer, FieldPosition field) {
+                return null;
+            }
 
+            public Date parse(String string, ParsePosition position) {
+                return null;
+            }
+        }.format(Calendar.getInstance().getTime());
+         */
+        try {
+            File newFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
+            if (!newFolder.exists()) {
+                newFolder.mkdir();
+            }
+            try {
+                //change to date-format name
+                File file = new File(newFolder, "DataBackup.txt");
+                //--------------------------
+                if(!file.exists()) {
+                    file.createNewFile();
+                }
+
+                Writer output = null;
+                try {
+                    output = new BufferedWriter(new FileWriter(file));
+                    for (AccelData data : results) {
+                        output.write(data.toString());
+                    }
+                    if (output != null) {
+                        output.close();
+                    }
+
+                } catch (Exception e) {
+                    Log.e("Write in file", "Exception: " + e.getMessage());
+                }
+            } catch (Exception ex) {
+                System.out.println("Create file " + ex);
+            }
+        } catch (Exception e) {
+            System.out.println("Create/open folder: " + e);
+        }
+
+        /*------- OLD -------
         File sdCard = Environment.getExternalStorageDirectory();
         //String WH = sdCard + "/WalkingHealth";
         Log.e("SD FileDir","sdCard location: "+sdCard);
@@ -207,6 +258,7 @@ public class MainActivity extends Activity {
         catch (Exception e){
             Log.d("MyAct", "Exception: " + e.getMessage());
         }
+        */
     }
 
 // ----------------END WRITE FILE FUNCTIONS-------------
