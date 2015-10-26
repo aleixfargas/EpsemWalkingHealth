@@ -182,13 +182,17 @@ public class MainActivity extends Activity {
             // Can't read or write
             mExternalStorageAvailable = mExternalStorageWriteable = false;
         }
+        Log.e("Podem escriure i/o llegir?","External Media: readable="+mExternalStorageAvailable+" writable="+mExternalStorageWriteable);
     }
 
     private void writeFile(){
         checkExternalMedia();
+
         File sdCard = Environment.getExternalStorageDirectory();
+        //String WH = sdCard + "/WalkingHealth";
         Log.e("SD FileDir","sdCard location: "+sdCard);
-        File file = new File(sdCard + "WalkingHealth", "mybackup.txt");
+        File file = new File(sdCard + "/WalkingHealth", "mybackup.txt");
+        //file.mkdirs();
         Writer output = null;
 
         try {
