@@ -38,6 +38,10 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.widget.LinearLayout;
 
+//popup imports
+import android.app.Dialog;
+import android.widget.TextView;
+
 public class MainActivity extends Activity {
     public boolean started = false;
     //public String MACaddr = "F5:8B:DF:1F:95:B0";
@@ -53,7 +57,12 @@ public class MainActivity extends Activity {
     private ArrayList<AccelData> results = new ArrayList<>();
     private boolean connection_status = false;
     private Button btnConnect, btnStartStop;
-
+    //Popup variables see: http://developer.android.com/guide/topics/ui/dialogs.html
+    /*
+    public Context context = new Context();
+    public Dialog dialog = new Dialog(context);
+    public TextView txt = (TextView)dialog.findViewById(R.id.textbox);
+    */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +71,16 @@ public class MainActivity extends Activity {
         createConnectButton();
         createGraph();
         createStartButton();
+
+        //is able to writte files? popup
+        switch (checkExternalMedia()){
+            case 0:
+                //txt.setText(getString(R.string.message));
+                break;
+            case -1:
+                //txt.setText(getString(R.string.message));
+                break;
+        }
     }
 
     @Override
@@ -173,7 +192,8 @@ public class MainActivity extends Activity {
 //----------------END START/STOP FUNCTIONS----------------
 // ----------------START WRITE FILE FUNCTIONS-------------
 
-    private void checkExternalMedia() {
+    private Integer checkExternalMedia() {
+        Integer result = 0;
         boolean mExternalStorageAvailable = false;
         boolean mExternalStorageWriteable = false;
         String state = Environment.getExternalStorageState();
@@ -181,15 +201,18 @@ public class MainActivity extends Activity {
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             // Can read and write the media
             mExternalStorageAvailable = mExternalStorageWriteable = true;
+            result = 1;
         } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
             // Can only read the media
             mExternalStorageAvailable = true;
             mExternalStorageWriteable = false;
+            result = -1;
         } else {
             // Can't read or write
             mExternalStorageAvailable = mExternalStorageWriteable = false;
         }
         Log.e("Podem escriure/llegir?","External Media: readable="+mExternalStorageAvailable+" writable="+mExternalStorageWriteable);
+        return result;
     }
 
     private String getStringDateTime(){
@@ -244,9 +267,6 @@ public class MainActivity extends Activity {
         //return the current date String formatted
         String now = getStringDateTime();
 
-        //is able to writte files?
-        checkExternalMedia();
-
         File newFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
         if (!newFolder.exists()) {
             newFolder.mkdir();
@@ -254,7 +274,6 @@ public class MainActivity extends Activity {
 
         //checking Folder in order to find if we have the same datetime file if founded, create a new FileWritter
         output = checkFolderFiles(newFolder, now);
-
         if(output != null) {
             //file not exists, so we create it and create a new FileWritter
             output = createNewFile(newFolder, file, now);
