@@ -197,8 +197,8 @@ public class MainActivity extends Activity {
         Date today = Calendar.getInstance().getTime();
         // (2) create a date "formatter" (the date format we want)
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        // (3) create a new String using the date format we want
 
+        // (3) create a new String using the date format we want
         return formatter.format(today);
     }
 
@@ -226,7 +226,7 @@ public class MainActivity extends Activity {
             if (f.isFile()) {
                 if (f.getName() == now+"_data.txt"){
                     try {
-                        file_output = new BufferedWriter(new FileWriter(f));
+                        file_output = new BufferedWriter(new FileWriter(f,true));
                     } catch (Exception IOException) {
                         Log.e("old file error","Cannot open oldFile");
                     }
