@@ -342,7 +342,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    //broadcast receiver
     public void ble() {
         callback = new BluetoothGattCallback() {
             @Override
