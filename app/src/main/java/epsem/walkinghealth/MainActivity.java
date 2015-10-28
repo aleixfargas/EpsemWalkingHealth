@@ -225,18 +225,23 @@ public class MainActivity extends Activity {
         return formatter.format(today);
     }
 
-    private BufferedWriter createNewFile(File newFolder, File file, String now) {
+    private BufferedWriter NewFileCreation(File file){
+        FileWriter Writer = null;
         BufferedWriter newFile_output = null;
 
-        Log.e("new File", "The file doesn't exist, so we create it");
-        file = new File(newFolder, now + "_data.txt");
-        try{
+        try {
             file.createNewFile();
-            newFile_output = new BufferedWriter(new FileWriter(file));
-        }
-        catch(Exception IOException){
+        } catch (Exception IOException) {
             Log.e("new file error", "Cannot create newFile");
         }
+
+        try {
+            Writer = new FileWriter(file);
+        } catch (Exception IOException) {
+            Log.e("new writter error", "Cannot create new Writter");
+        }
+
+        newFile_output = new BufferedWriter(Writer);
 
         return newFile_output;
     }
@@ -262,7 +267,6 @@ public class MainActivity extends Activity {
 
     private void writeFile(){
         Writer output = null;
-        File file = null;
 
         //return the current date String formatted
         String now = getStringDateTime();
@@ -276,8 +280,11 @@ public class MainActivity extends Activity {
         output = checkFolderFiles(newFolder, now);
         if(output == null) {
             //file not exists, so we create it and create a new FileWritter
-            output = createNewFile(newFolder, file, now);
+            Log.e("new File", "The file doesn't exist, so we create it: "+newFolder+"/"+now+"_data.txt");
+            File file = new File(newFolder, now + "_data.txt");
+            output = NewFileCreation(file);
         }
+        Log.e("output", "output not null? -> "+output);
 
         try {
             for (AccelData data : results) {
@@ -290,30 +297,6 @@ public class MainActivity extends Activity {
         } catch (Exception IOException) {
             Log.e("Write in file", "Exception: " + IOException.getMessage());
         }
-
-        /*
-        ------- OLD -------
-        File sdCard = Environment.getExternalStorageDirectory();
-        //String WH = sdCard + "/WalkingHealth";
-        Log.e("SD FileDir","sdCard location: "+sdCard);
-        File file = new File(sdCard + "/WalkingHealth", "mybackup.txt");
-        //file.mkdirs();
-        Writer output = null;
-
-        try {
-            output = new BufferedWriter(new FileWriter(file));
-            for (AccelData data : results){
-                output.write(data.toString());
-            }
-            if (output != null){
-                output.close();
-            }
-        }
-        catch (Exception e){
-            Log.d("MyAct", "Exception: " + e.getMessage());
-        }
-        -------------------
-        */
     }
 
 // ----------------END WRITE FILE FUNCTIONS-------------
