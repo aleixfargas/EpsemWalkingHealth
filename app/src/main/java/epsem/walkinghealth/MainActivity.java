@@ -41,6 +41,7 @@ import android.widget.LinearLayout;
 //popup imports
 import android.app.Dialog;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
     public boolean started = false;
@@ -76,6 +77,15 @@ public class MainActivity extends Activity {
         switch (checkExternalMedia()){
             case 0:
                 Log.e("permissions","ERROR! 0");
+                //Context context = this;
+                //Toast --> http://developer.android.com/guide/topics/ui/notifiers/toasts.html
+                Context context = getApplicationContext();
+                CharSequence text = "Permission Writte Error";
+                int duration = Toast.LENGTH_LONG;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+
                 //txt.setText(getString(R.string.message));
                 break;
             case -1:
@@ -168,7 +178,6 @@ public class MainActivity extends Activity {
         android.widget.LinearLayout layout;
 
         graph = new GraphChart(getBaseContext());
-        graph.clear();
         layout = (LinearLayout) findViewById(R.id.graph_layout);
         layout.addView(this.graph.getView());
     }
@@ -184,9 +193,11 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 if (btnStartStop.getText().equals("Start")) {
                     started = true;
+                    graph.clear();
                     btnStartStop.setText("Stop");
                 } else {
                     started = false;
+                    writeFile();
                     btnStartStop.setText("Start");
                 }
             }
@@ -331,12 +342,13 @@ public class MainActivity extends Activity {
         }
     }
 
+    //broadcast receiver
     public void ble() {
         callback = new BluetoothGattCallback() {
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    // S'ha establert la connexió amb el perifèric
+                    // S'ha establert la connexió amb el perifèric,
                     gatt.discoverServices();
                     Log.d("BLE","connection established");
                 }
@@ -364,7 +376,6 @@ public class MainActivity extends Activity {
 
                     //Emmagatzematge de dades
                     results.add(AD);
-                    writeFile();
 
                     //Visualització dades
                     graph.add(System.currentTimeMillis(), (double)(data[0]));
