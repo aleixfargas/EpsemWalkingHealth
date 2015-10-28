@@ -266,7 +266,7 @@ public class MainActivity extends Activity {
     }
 
     private void writeFile(){
-        Writer output = null;
+        BufferedWriter output;
 
         //return the current date String formatted
         String now = getStringDateTime();
@@ -277,13 +277,13 @@ public class MainActivity extends Activity {
         }
 
         //checking Folder in order to find if we have the same datetime file if founded, create a new FileWritter
-        output = checkFolderFiles(newFolder, now);
-        if(output == null) {
+        //output = checkFolderFiles(newFolder, now);
+        //if(output == null) {
             //file not exists, so we create it and create a new FileWritter
             Log.e("new File", "The file doesn't exist, so we create it: "+newFolder+"/"+now+"_data.txt");
             File file = new File(newFolder, now + "_data.txt");
             output = NewFileCreation(file);
-        }
+        //}
         Log.e("output", "output not null? -> "+output);
 
         try {
