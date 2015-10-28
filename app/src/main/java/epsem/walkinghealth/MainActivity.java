@@ -20,7 +20,12 @@ import android.bluetooth.BluetoothProfile;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
+import java.nio.ByteBuffer;
+import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -34,7 +39,8 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.widget.LinearLayout;
 
 //popup imports
-
+import android.app.Dialog;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
     public boolean started = false;
@@ -219,15 +225,14 @@ public class MainActivity extends Activity {
         return formatter.format(today);
     }
 
-    private BufferedWriter createNewFile(File newFolder, String now) {
+    private BufferedWriter createNewFile(File newFolder, File file, String now) {
         BufferedWriter newFile_output = null;
 
-        Log.e("exists", "The file doesn't exist so we create it");
-        File file = new File(newFolder, now + "_data.txt");
+        Log.e("new File", "The file doesn't exist, so we create it");
+        file = new File(newFolder, now + "_data.txt");
         try{
-            if (file.createNewFile()) {
-                newFile_output = new BufferedWriter(new FileWriter(file));
-            }
+            file.createNewFile();
+            newFile_output = new BufferedWriter(new FileWriter(file));
         }
         catch(Exception IOException){
             Log.e("new file error", "Cannot create newFile");
@@ -256,7 +261,7 @@ public class MainActivity extends Activity {
     }
 
     private void writeFile(){
-        Writer output;
+        Writer output = null;
         File file = null;
 
         //return the current date String formatted
@@ -267,13 +272,11 @@ public class MainActivity extends Activity {
             newFolder.mkdir();
         }
 
-        //checking Folder in order to find if we have the same datetime file, if founded, create a new FileWritter
+        //checking Folder in order to find if we have the same datetime file if founded, create a new FileWritter
         output = checkFolderFiles(newFolder, now);
-        Log.e("Write in file", "checkFolderFiles "+output);
         if(output == null) {
-            Log.e("Write in file", "fitxer no existeix");
             //file not exists, so we create it and create a new FileWritter
-            output = createNewFile(newFolder, now);
+            output = createNewFile(newFolder, file, now);
         }
 
         try {
@@ -284,8 +287,8 @@ public class MainActivity extends Activity {
                 output.flush();
                 output.close();
             }
-        } catch (Exception e) {
-            Log.e("Write in file", "Exception: " + e.getMessage());
+        } catch (Exception IOException) {
+            Log.e("Write in file", "Exception: " + IOException.getMessage());
         }
 
         /*
