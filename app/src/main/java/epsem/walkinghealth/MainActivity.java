@@ -75,11 +75,15 @@ public class MainActivity extends Activity {
         //is able to writte files? popup
         switch (checkExternalMedia()){
             case 0:
+                Log.e("permissions","ERROR! 0");
                 //txt.setText(getString(R.string.message));
                 break;
             case -1:
                 //txt.setText(getString(R.string.message));
+                Log.e("permissions","ERROR! -1");
                 break;
+            default:
+                Log.e("permissions","OK");
         }
     }
 
@@ -226,33 +230,33 @@ public class MainActivity extends Activity {
     }
 
     private BufferedWriter NewFileCreation(File file){
-        FileWriter Writer = null;
-        BufferedWriter newFile_output = null;
-
+        BufferedWriter newFile_bw = null;
         try {
-            file.createNewFile();
+            if(file.createNewFile()){
+                Log.e("new File","Success Creating");
+                FileWriter fw = new FileWriter(file);
+                newFile_bw = new BufferedWriter(fw);
+            }
+            else {
+                Log.e("new File","error Creating");
+            }
         } catch (Exception IOException) {
-            Log.e("new file error", "Cannot create newFile");
+            Log.e("new writter error", "Cannot create new file");
         }
 
-        try {
-            Writer = new FileWriter(file);
-        } catch (Exception IOException) {
-            Log.e("new writter error", "Cannot create new Writter");
-        }
-
-        newFile_output = new BufferedWriter(Writer);
-
-        return newFile_output;
+        return newFile_bw;
     }
 
-    private BufferedWriter checkFolderFiles(File newFolder, String now){
+    private BufferedWriter checkFolderFiles(File newFolder, String filename){
         BufferedWriter file_output = null;
 
         File[] listOfFiles = newFolder.listFiles();
         for (File f : listOfFiles) {
+            Log.e("Checking Folder","founded file: "+f);
             if (f.isFile()) {
-                if (f.getName() == now+"_data.txt"){
+                Log.e("Checking Folder",f+" is file and his name is: "+f.getName());
+                if (f.getName().equals(filename)){
+                    Log.e("Checking Folder",f.getName()+" == "+filename);
                     try {
                         file_output = new BufferedWriter(new FileWriter(f,true));
                     } catch (Exception IOException) {
@@ -270,21 +274,30 @@ public class MainActivity extends Activity {
 
         //return the current date String formatted
         String now = getStringDateTime();
+        //Define here the name of the file
+        String filename = now+"_data.txt";
 
         File newFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
+        Log.e("Folder","new Folder: "+newFolder);
+
         if (!newFolder.exists()) {
-            newFolder.mkdir();
+            Log.e("Folder", "creating...");
+            if(newFolder.mkdirs()){
+                Log.e("Folder","Success Creating");
+            }
+            else {
+                Log.e("Folder","error Creating");
+            }
         }
 
         //checking Folder in order to find if we have the same datetime file if founded, create a new FileWritter
-        //output = checkFolderFiles(newFolder, now);
-        //if(output == null) {
+        output = checkFolderFiles(newFolder, filename);
+
+        if(output == null) {
             //file not exists, so we create it and create a new FileWritter
-            Log.e("new File", "The file doesn't exist, so we create it: "+newFolder+"/"+now+"_data.txt");
-            File file = new File(newFolder, now + "_data.txt");
+            File file = new File(newFolder, filename);
             output = NewFileCreation(file);
-        //}
-        Log.e("output", "output not null? -> "+output);
+        }
 
         try {
             for (AccelData data : results) {
