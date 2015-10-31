@@ -45,8 +45,8 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
     public boolean started = false;
-    //public String MACaddr = "F5:8B:DF:1F:95:B0";
     public String MACaddr = "DB:0B:C0:B1:0D:38";
+
     //    public GraphChart graph = new GraphChart(getBaseContext());
     public GraphChart graph;
     public BluetoothManager manager;
@@ -58,6 +58,12 @@ public class MainActivity extends Activity {
     private ArrayList<AccelData> results = new ArrayList<>();
     private boolean connection_status = false;
     private Button btnConnect, btnStartStop;
+
+    //Toast --> http://developer.android.com/guide/topics/ui/notifiers/toasts.html
+    public Context context = getApplicationContext();
+    CharSequence text;
+    public int duration = Toast.LENGTH_LONG;
+
     //Popup variables see: http://developer.android.com/guide/topics/ui/dialogs.html
     /*
     public Context context = new Context();
@@ -77,21 +83,14 @@ public class MainActivity extends Activity {
         switch (checkExternalMedia()){
             case 0:
                 Log.e("permissions","ERROR! 0");
-                //Context context = this;
-                //Toast --> http://developer.android.com/guide/topics/ui/notifiers/toasts.html
-                Context context = getApplicationContext();
-                CharSequence text = "Permission Writte Error";
-                int duration = Toast.LENGTH_LONG;
-
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
-
-                //txt.setText(getString(R.string.message));
+                text = "Permission Writte Error";
+                Toast.makeText(context, text, duration).show();
                 break;
+
             case -1:
-                //txt.setText(getString(R.string.message));
                 Log.e("permissions","ERROR! -1");
                 break;
+
             default:
                 Log.e("permissions","OK");
         }
@@ -349,9 +348,15 @@ public class MainActivity extends Activity {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     // S'ha establert la connexió amb el perifèric,
                     gatt.discoverServices();
+                    //print into the display
+                    text = "connection established";
+                    Toast.makeText(context, text, duration).show();
                     Log.d("BLE","connection established");
                 }
                 else if(newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    //print into the display
+                    text = "connection lost";
+                    Toast.makeText(context, text, duration).show();
                     Log.d("BLE","connection lost");
                 }
             }
