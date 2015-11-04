@@ -10,9 +10,7 @@ import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
-/**
- * Created by vicenc on 15/10/15.
- */
+
 public class GraphChart {
     private XYSeries xSeries = new XYSeries("X");
     private XYSeries ySeries = new XYSeries("Y");
