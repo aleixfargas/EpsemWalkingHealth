@@ -3,6 +3,7 @@
 *.xml
 *.txt
 *.apk
+*-no.*
 
 #*#
 
@@ -17,3 +18,5 @@ local.properties
 .DS_Store
 
 captures
+
+app/build/outputs/apk/
