@@ -1,6 +1,7 @@
 package epsem.walkinghealth;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
 
 import org.achartengine.ChartFactory;
@@ -23,8 +24,14 @@ public class GraphChart {
         dataset.addSeries(ySeries);
         dataset.addSeries(zSeries);
         XYSeriesRenderer xRenderer = new XYSeriesRenderer();
+        XYSeriesRenderer yRenderer = new XYSeriesRenderer();
+        XYSeriesRenderer zRenderer = new XYSeriesRenderer();
+        yRenderer.setColor(Color.RED);
+        zRenderer.setColor(Color.GREEN);
         XYMultipleSeriesRenderer multiRenderer = new XYMultipleSeriesRenderer();
         multiRenderer.addSeriesRenderer(xRenderer);
+        multiRenderer.addSeriesRenderer(yRenderer);
+        multiRenderer.addSeriesRenderer(zRenderer);
         graph = ChartFactory.getLineChartView(context, dataset, multiRenderer);
 
     }

@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -376,19 +377,21 @@ public class MainActivity extends Activity {
         callback = new BluetoothGattCallback() {
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+                List<BluetoothDevice> disp_llista;
+                disp_llista = newState.getConnectedDevices();
+                Log.e("BLE","connection established");
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     // S'ha establert la connexió amb el perifèric,
                     gatt.discoverServices();
                     //print into the display
                     text = "connection established";
                     Toast.makeText(appcontext, text, duration).show();
-                    Log.d("BLE","connection established");
                 }
                 else if(newState == BluetoothProfile.STATE_DISCONNECTED) {
                     //print into the display
                     text = "connection lost";
                     Toast.makeText(appcontext, text, duration).show();
-                    Log.d("BLE","connection lost");
+                    Log.e("BLE","connection lost");
                 }
             }
 
