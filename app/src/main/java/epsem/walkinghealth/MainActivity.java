@@ -60,7 +60,7 @@ public class MainActivity extends Activity {
     private Button btnConnect, btnStartStop;
 
     //Toast --> http://developer.android.com/guide/topics/ui/notifiers/toasts.html
-    public Context context = getApplicationContext();
+    public Context appcontext;
     CharSequence text;
     public int duration = Toast.LENGTH_LONG;
 
@@ -72,6 +72,7 @@ public class MainActivity extends Activity {
     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        appcontext = getApplicationContext();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -84,7 +85,7 @@ public class MainActivity extends Activity {
             case 0:
                 Log.e("permissions","ERROR! 0");
                 text = "Permission Writte Error";
-                Toast.makeText(context, text, duration).show();
+                Toast.makeText(appcontext, text, duration).show();
                 break;
 
             case -1:
@@ -380,13 +381,13 @@ public class MainActivity extends Activity {
                     gatt.discoverServices();
                     //print into the display
                     text = "connection established";
-                    Toast.makeText(context, text, duration).show();
+                    Toast.makeText(appcontext, text, duration).show();
                     Log.d("BLE","connection established");
                 }
                 else if(newState == BluetoothProfile.STATE_DISCONNECTED) {
                     //print into the display
                     text = "connection lost";
-                    Toast.makeText(context, text, duration).show();
+                    Toast.makeText(appcontext, text, duration).show();
                     Log.d("BLE","connection lost");
                 }
             }
