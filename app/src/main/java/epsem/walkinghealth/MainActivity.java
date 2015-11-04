@@ -170,6 +170,36 @@ public class MainActivity extends Activity {
         }
     }
 
+//----------------START CONNECT BUTTON FUNCTIONS WITH BLE ENABLE----------------
+
+//    public void createConnectButton(){
+//        btnConnect = (Button) findViewById(R.id.connect);
+//        adapter = BluetoothAdapter.getDefaultAdapter();
+//
+//        btnConnect.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (!adapter.isEnabled()) {
+//                    Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//                    startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+//                }
+//                else{
+//                    if (btnConnect.getText().equals("Connect")){
+//
+//                        //Connect button pressed, open DeviceListActivity class, with popup windows that scan for devices
+//
+//                        Intent newIntent = new Intent(MainActivity.this, DeviceListActivity.class);
+//                        startActivityForResult(newIntent, REQUEST_SELECT_DEVICE);
+//                    }
+//                    else {
+//                        //Disconnect button pressed
+//                        if (device != null) {
+//                            mService.disconnect();
+//                        }
+//                    }
+//        });
+//    }
+//----------------END CONNECT BUTTON FUNCTIONS WITH BLE ENABLE----------------
 //----------------END CONNECT BUTTON FUNCTIONS----------------
 //----------------START GRAPH FUNCTIONS----------------
 

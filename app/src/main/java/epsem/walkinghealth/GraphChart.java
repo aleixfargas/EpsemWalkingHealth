@@ -15,11 +15,15 @@ import org.achartengine.renderer.XYSeriesRenderer;
  */
 public class GraphChart {
     private XYSeries xSeries = new XYSeries("X");
+    private XYSeries ySeries = new XYSeries("Y");
+    private XYSeries zSeries = new XYSeries("Z");
     private View graph;
 
     public GraphChart(Context context) {
         XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
         dataset.addSeries(xSeries);
+        dataset.addSeries(ySeries);
+        dataset.addSeries(zSeries);
         XYSeriesRenderer xRenderer = new XYSeriesRenderer();
         XYMultipleSeriesRenderer multiRenderer = new XYMultipleSeriesRenderer();
         multiRenderer.addSeriesRenderer(xRenderer);
@@ -28,14 +32,18 @@ public class GraphChart {
     }
     public void clear(){
         xSeries.clear();
+        ySeries.clear();
+        zSeries.clear();
     }
 
     public View getView(){
         return this.graph;
     }
 
-    public void add(long t, double x){
+    public void add(long t, double x,double y, double z){
         xSeries.add(t, x);
+        ySeries.add(t, y);
+        zSeries.add(t, z);
     }
 
     public void update() {
