@@ -412,7 +412,7 @@ public class MainActivity extends Activity {
                     results.add(AD);
 
                     //Visualització dades
-                    graph.add(System.currentTimeMillis(), (double)(data[0]));
+                    graph.add(System.currentTimeMillis(), (double)(data[0]), (double)(data[1]), (double)(data[2]));
                     graph.update();
                 }
             }
