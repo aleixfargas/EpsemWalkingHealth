@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
     //Toast --> http://developer.android.com/guide/topics/ui/notifiers/toasts.html
     public Context appcontext;
     CharSequence text;
-    public int duration = Toast.LENGTH_LONG;
+    public int duration;
 
     //Popup variables see: http://developer.android.com/guide/topics/ui/dialogs.html
     /*
@@ -124,26 +124,17 @@ public class MainActivity extends Activity {
 
     public void createConnectButton(){
         btnConnect = (Button) findViewById(R.id.connect);
-
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             if (btnConnect.getText().equals("Connect")) {
                 if (connect()){
-                    btnConnect.setText("Disconnect");
-                }
-                else{
-                    btnConnect.setText("Failed connection"); //Pop up!
-                    try {
-                        TimeUnit.SECONDS.sleep(1);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    //btnConnect.setText("Disconnect");
                 }
             }
             else {
                 if(disconnect()) {
-                    btnConnect.setText("Connect");
+                    //btnConnect.setText("Connect");
                 }
                 else{
                     Log.e("Disconnect","NOT DISCONNECTED");
@@ -151,32 +142,7 @@ public class MainActivity extends Activity {
             }
             }
         });
-    }
-
-    public boolean connect() {
-        ble();
-        if (this.device == null) {
-            Log.w("Ap", "Device not found.  Unable to connect.");
-            return false;
-        }
-        return true;
-    }
-
-    public boolean disconnect() {
-        if (this.adapter != null && this.gatt != null) {
-            this.gatt.disconnect();
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-
-//----------------START CONNECT BUTTON FUNCTIONS WITH BLE ENABLE----------------
-
-//    public void createConnectButton(){
-//        btnConnect = (Button) findViewById(R.id.connect);
-//        adapter = BluetoothAdapter.getDefaultAdapter();
+        //        adapter = BluetoothAdapter.getDefaultAdapter();
 //
 //        btnConnect.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -201,7 +167,27 @@ public class MainActivity extends Activity {
 //                    }
 //        });
 //    }
-//----------------END CONNECT BUTTON FUNCTIONS WITH BLE ENABLE----------------
+    }
+
+    public boolean connect() {
+        ble();
+        if (this.device == null) {
+            Log.w("Ap", "Device not found.  Unable to connect.");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean disconnect() {
+        if (this.adapter != null && this.gatt != null) {
+            this.gatt.disconnect();
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
 //----------------END CONNECT BUTTON FUNCTIONS----------------
 //----------------START GRAPH FUNCTIONS----------------
 
@@ -377,22 +363,36 @@ public class MainActivity extends Activity {
         callback = new BluetoothGattCallback() {
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                List<BluetoothDevice> disp_llista;
-                disp_llista = newState.getConnectedDevices();
-                Log.e("BLE","connection established");
-                if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    // S'ha establert la connexió amb el perifèric,
-                    gatt.discoverServices();
-                    //print into the display
-                    text = "connection established";
-                    Toast.makeText(appcontext, text, duration).show();
+                Log.e("BLE", "newState = "+newState);
+                switch (newState){
+                    case 0:
+                        btnConnect.setText("Connect");
+                        text = "device disconnected";
+                        duration = Toast.LENGTH_LONG;
+                        break;
+                    case 1:
+                        btnConnect.setText("Connecting");
+                        text = "connecting to device";
+                        duration = Toast.LENGTH_SHORT;
+                        break;
+                    case 2:
+                        btnConnect.setText("Disconnect"); //Pop up!
+                        text = "device connected";
+                        duration = Toast.LENGTH_LONG;
+                        gatt.discoverServices();
+                        break;
+                    case 3:
+                        btnConnect.setText("Disconnecting"); //Pop up!
+                        text = "disconnecting device";
+                        duration = Toast.LENGTH_SHORT;
+                        break;
+                    default:
+                        text = "connection state unknown...";
+                        duration = Toast.LENGTH_LONG;
+                        break;
                 }
-                else if(newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    //print into the display
-                    text = "connection lost";
-                    Toast.makeText(appcontext, text, duration).show();
-                    Log.e("BLE","connection lost");
-                }
+
+                Toast.makeText(appcontext, text, duration).show();
             }
 
             @Override
