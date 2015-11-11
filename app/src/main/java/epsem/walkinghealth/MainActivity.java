@@ -23,6 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.ByteBuffer;
+import java.security.cert.TrustAnchor;
 import java.text.DateFormat;
 import java.text.FieldPosition;
 import java.text.ParsePosition;
@@ -64,6 +65,7 @@ public class MainActivity extends Activity {
     public Context appcontext;
     CharSequence text;
     public int duration;
+    public String connect_status="Connect";
 
     //Popup variables see: http://developer.android.com/guide/topics/ui/dialogs.html
     /*
@@ -124,24 +126,26 @@ public class MainActivity extends Activity {
 
     public void createConnectButton(){
         btnConnect = (Button) findViewById(R.id.connect);
+
+        btnConnect.setText(connect_status);
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            if (btnConnect.getText().equals("Connect")) {
-                if (connect()){
-                    //btnConnect.setText("Disconnect");
+                if (btnConnect.getText().equals("Connect")) {
+                    if (connect()) {
+                    }
+                } else {
+                    if (disconnect()) {
+                        //btnConnect.setText("Connect");
+                    } else {
+                        Log.e("Disconnect", "NOT DISCONNECTED");
+                    }
                 }
-            }
-            else {
-                if(disconnect()) {
-                    //btnConnect.setText("Connect");
-                }
-                else{
-                    Log.e("Disconnect","NOT DISCONNECTED");
-                }
-            }
+                btnConnect.setText(connect_status);
+                Toast.makeText(appcontext, text, duration).show();
             }
         });
+
         //        adapter = BluetoothAdapter.getDefaultAdapter();
 //
 //        btnConnect.setOnClickListener(new View.OnClickListener() {
@@ -214,7 +218,6 @@ public class MainActivity extends Activity {
                     btnStartStop.setText("Stop");
                 } else {
                     started = false;
-                    writeFile();
                     btnStartStop.setText("Start");
                 }
             }
@@ -298,6 +301,7 @@ public class MainActivity extends Activity {
     }
 
     private void writeFile(){
+        int i=0;
         BufferedWriter output;
 
         //return the current date String formatted
@@ -328,9 +332,9 @@ public class MainActivity extends Activity {
         }
 
         try {
-            for (AccelData data : results) {
-                output.write(data.toString());
-            }
+            for (i=0;i<results.size();i++);
+            output.write((results.get(i)).toString());
+
             if (output != null) {
                 output.flush();
                 output.close();
@@ -363,26 +367,26 @@ public class MainActivity extends Activity {
         callback = new BluetoothGattCallback() {
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                Log.e("BLE", "newState = "+newState);
+                Log.e("BLE", "newState = " + newState);
                 switch (newState){
                     case 0:
-                        btnConnect.setText("Connect");
+                        connect_status="Connect";
                         text = "device disconnected";
                         duration = Toast.LENGTH_LONG;
                         break;
                     case 1:
-                        btnConnect.setText("Connecting");
+                        connect_status="Connecting";
                         text = "connecting to device";
                         duration = Toast.LENGTH_SHORT;
                         break;
                     case 2:
-                        btnConnect.setText("Disconnect"); //Pop up!
+                        connect_status="Disconnect";
                         text = "device connected";
                         duration = Toast.LENGTH_LONG;
                         gatt.discoverServices();
                         break;
                     case 3:
-                        btnConnect.setText("Disconnecting"); //Pop up!
+                        connect_status="Disconnecting";
                         text = "disconnecting device";
                         duration = Toast.LENGTH_SHORT;
                         break;
@@ -391,8 +395,6 @@ public class MainActivity extends Activity {
                         duration = Toast.LENGTH_LONG;
                         break;
                 }
-
-                Toast.makeText(appcontext, text, duration).show();
             }
 
             @Override
@@ -414,6 +416,7 @@ public class MainActivity extends Activity {
 
                     //Emmagatzematge de dades
                     results.add(AD);
+                    writeFile();
 
                     //Visualització dades
                     graph.add(System.currentTimeMillis(), (double)(data[0]), (double)(data[1]), (double)(data[2]));
