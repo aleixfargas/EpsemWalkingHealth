@@ -342,6 +342,7 @@ public class MainActivity extends Activity {
         }
 
         try {
+            Log.e("WriteFile", "writing");
             for (AccelData data : results) {
                 output.write(data.toString());
             }
