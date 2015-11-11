@@ -333,7 +333,7 @@ public class MainActivity extends Activity {
 
         try {
             for (i=0;i<results.size();i++);
-            output.write((results.get(i)).toString());
+            output.write((results.get(i-1)).toString());
 
             if (output != null) {
                 output.flush();
