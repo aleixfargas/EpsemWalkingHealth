@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
 
     //Toast --> http://developer.android.com/guide/topics/ui/notifiers/toasts.html
     public Context appcontext;
-    CharSequence text;
+    CharSequence text = "connecting to device";
     public int duration;
     public String connect_status="Connect";
 
@@ -82,7 +82,7 @@ public class MainActivity extends Activity {
         createConnectButton();
         createGraph();
         createStartButton();
-
+        ble();
         //is able to writte files? popup
         switch (checkExternalMedia()){
             case 0:
@@ -132,14 +132,9 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (btnConnect.getText().equals("Connect")) {
-                    if (connect()) {
-                    }
+                    connect();
                 } else {
-                    if (disconnect()) {
-                        //btnConnect.setText("Connect");
-                    } else {
-                        Log.e("Disconnect", "NOT DISCONNECTED");
-                    }
+                    disconnect();
                 }
                 btnConnect.setText(connect_status);
                 Toast.makeText(appcontext, text, duration).show();
@@ -174,7 +169,7 @@ public class MainActivity extends Activity {
     }
 
     public boolean connect() {
-        ble();
+        List<BluetoothDevice> ble_array = this.manager.getConnectedDevices(this.gatt);
         if (this.device == null) {
             Log.w("Ap", "Device not found.  Unable to connect.");
             return false;
