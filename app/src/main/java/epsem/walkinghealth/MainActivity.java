@@ -169,7 +169,7 @@ public class MainActivity extends Activity {
     }
 
     public boolean connect() {
-        List<BluetoothDevice> ble_array = this.manager.getConnectedDevices(this.gatt);
+        //List<BluetoothDevice> ble_array = this.manager.getConnectedDevices();
         if (this.device == null) {
             Log.w("Ap", "Device not found.  Unable to connect.");
             return false;
