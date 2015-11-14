@@ -86,6 +86,8 @@ public class ServerUploader {
         }
         outputStream.writeBytes("\r\n");
         outputStream.writeBytes("--" + boundary + "--" + "\r\n");
+        Log.d("App", "Server response code: " + connection.getResponseCode());
+        Log.d("App", "Server response msg: " + connection.getResponseMessage());
         fileInputStream.close();
         outputStream.flush();
         outputStream.close();
