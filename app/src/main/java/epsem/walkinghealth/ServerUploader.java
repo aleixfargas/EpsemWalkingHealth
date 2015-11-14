@@ -14,7 +14,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 
 public class ServerUploader {
-    public String urlServer = "http://10.42.0.1/handle_data.php";
+    public String urlServer = "http://localhost/prova/index.php";
     public String boundary = "*****";
     public URL url;
     public HttpURLConnection connection;
@@ -38,7 +38,7 @@ public class ServerUploader {
             StartConnection();
 
             //Lectura del fitxer
-            pathToOurFile = new File(Environment.getExternalStorageDirectory(), "dades.txt");
+            pathToOurFile = new File(Environment.getExternalStorageDirectory(), "2015-11-14_data.txt");
             fileInputStream = new FileInputStream(pathToOurFile);
             readFile();
 
