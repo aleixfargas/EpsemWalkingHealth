@@ -9,63 +9,32 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.nio.ByteBuffer;
-import java.security.cert.TrustAnchor;
-import java.text.DateFormat;
-import java.text.FieldPosition;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
-import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.widget.LinearLayout;
-
-//popup imports
-import android.app.Dialog;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends Activity {
     public boolean started = false;
-    public String MACaddr = "DB:0B:C0:B1:0D:38";
 
-    //    public GraphChart graph = new GraphChart(getBaseContext());
+    private Button btnConnect, btnStartStop;
     public GraphChart graph;
-    public BluetoothManager manager;
-    public BluetoothAdapter adapter;
-    public BluetoothDevice device;
-    public BluetoothGatt gatt;
-    public BluetoothGattCallback callback;
+    public BLEConnection radino;
 
     private ArrayList<AccelData> results = new ArrayList<>();
-    private boolean connection_status = false;
-    private Button btnConnect, btnStartStop;
+    public String connect_status = "Connect";
 
     //Toast --> http://developer.android.com/guide/topics/ui/notifiers/toasts.html
     public Context appcontext;
-    CharSequence text = "connecting to device";
+    public CharSequence text = "connecting to device";
     public int duration;
-    public String connect_status="Connect";
 
     //Popup variables see: http://developer.android.com/guide/topics/ui/dialogs.html
     /*
@@ -73,30 +42,33 @@ public class MainActivity extends Activity {
     public Dialog dialog = new Dialog(context);
     public TextView txt = (TextView)dialog.findViewById(R.id.textbox);
     */
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         appcontext = getApplicationContext();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        createConnectButton();
         createGraph();
+        this.radino = new BLEConnection(this.started, this.graph, this.getSystemService(Context.BLUETOOTH_SERVICE), appcontext);
+
+        createConnectButton();
         createStartButton();
-        ble();
+
         //is able to writte files? popup
-        switch (checkExternalMedia()){
+        switch (checkExternalMedia()) {
             case 0:
-                Log.e("permissions","ERROR! 0");
+                Log.e("permissions", "ERROR! 0");
                 text = "Permission Writte Error";
                 Toast.makeText(appcontext, text, duration).show();
                 break;
 
             case -1:
-                Log.e("permissions","ERROR! -1");
+                Log.e("permissions", "ERROR! -1");
                 break;
 
             default:
-                Log.e("permissions","OK");
+                Log.e("permissions", "OK");
         }
     }
 
@@ -124,76 +96,30 @@ public class MainActivity extends Activity {
 
 //----------------START CONNECT BUTTON FUNCTIONS----------------
 
-    public void createConnectButton(){
+    public void createConnectButton() {
         btnConnect = (Button) findViewById(R.id.connect);
-
         btnConnect.setText(connect_status);
+
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (btnConnect.getText().equals("Connect")) {
-                    connect();
+                    radino.BLEconnect();
                 } else {
-                    disconnect();
+                    radino.BLEdisconnect();
                 }
                 btnConnect.setText(connect_status);
                 Toast.makeText(appcontext, text, duration).show();
             }
         });
-
-        //        adapter = BluetoothAdapter.getDefaultAdapter();
-//
-//        btnConnect.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (!adapter.isEnabled()) {
-//                    Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//                    startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-//                }
-//                else{
-//                    if (btnConnect.getText().equals("Connect")){
-//
-//                        //Connect button pressed, open DeviceListActivity class, with popup windows that scan for devices
-//
-//                        Intent newIntent = new Intent(MainActivity.this, DeviceListActivity.class);
-//                        startActivityForResult(newIntent, REQUEST_SELECT_DEVICE);
-//                    }
-//                    else {
-//                        //Disconnect button pressed
-//                        if (device != null) {
-//                            mService.disconnect();
-//                        }
-//                    }
-//        });
-//    }
     }
-
-    public boolean connect() {
-        //List<BluetoothDevice> ble_array = this.manager.getConnectedDevices();
-        if (this.device == null) {
-            Log.w("Ap", "Device not found.  Unable to connect.");
-            return false;
-        }
-        return true;
-    }
-
-    public boolean disconnect() {
-        if (this.adapter != null && this.gatt != null) {
-            this.gatt.disconnect();
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-
 //----------------END CONNECT BUTTON FUNCTIONS----------------
 //----------------START GRAPH FUNCTIONS----------------
 
-    public void createGraph(){
+    public void createGraph() {
         android.widget.LinearLayout layout;
 
-        graph = new GraphChart(getBaseContext());
+        this.graph = new GraphChart(getBaseContext());
         layout = (LinearLayout) findViewById(R.id.graph_layout);
         layout.addView(this.graph.getView());
     }
@@ -201,7 +127,7 @@ public class MainActivity extends Activity {
 //----------------END GRAPH FUNCTIONS----------------
 //----------------START START/STOP FUNCTIONS----------------
 
-    public void createStartButton(){
+    public void createStartButton() {
         btnStartStop = (Button) findViewById(R.id.startstop);
 
         btnStartStop.setOnClickListener(new View.OnClickListener() {
@@ -213,6 +139,7 @@ public class MainActivity extends Activity {
                     btnStartStop.setText("Stop");
                 } else {
                     started = false;
+                    writeFile();
                     btnStartStop.setText("Start");
                 }
             }
@@ -241,11 +168,11 @@ public class MainActivity extends Activity {
             // Can't read or write
             mExternalStorageAvailable = mExternalStorageWriteable = false;
         }
-        Log.e("Podem escriure/llegir?","External Media: readable="+mExternalStorageAvailable+" writable="+mExternalStorageWriteable);
+        Log.e("Podem escriure/llegir?", "External Media: readable=" + mExternalStorageAvailable + " writable=" + mExternalStorageWriteable);
         return result;
     }
 
-    private String getStringDateTime(){
+    private String getStringDateTime() {
         // (1) get today's date
         Date today = Calendar.getInstance().getTime();
         // (2) create a date "formatter" (the date format we want)
@@ -255,16 +182,15 @@ public class MainActivity extends Activity {
         return formatter.format(today);
     }
 
-    private BufferedWriter NewFileCreation(File file){
+    private BufferedWriter NewFileCreation(File file) {
         BufferedWriter newFile_bw = null;
         try {
-            if(file.createNewFile()){
-                Log.e("new File","Success Creating");
+            if (file.createNewFile()) {
+                Log.e("new File", "Success Creating");
                 FileWriter fw = new FileWriter(file);
                 newFile_bw = new BufferedWriter(fw);
-            }
-            else {
-                Log.e("new File","error Creating");
+            } else {
+                Log.e("new File", "error Creating");
             }
         } catch (Exception IOException) {
             Log.e("new writter error", "Cannot create new file");
@@ -273,20 +199,20 @@ public class MainActivity extends Activity {
         return newFile_bw;
     }
 
-    private BufferedWriter checkFolderFiles(File newFolder, String filename){
+    private BufferedWriter checkFolderFiles(File newFolder, String filename) {
         BufferedWriter file_output = null;
 
         File[] listOfFiles = newFolder.listFiles();
         for (File f : listOfFiles) {
-            Log.e("Checking Folder","founded file: "+f);
+            Log.e("Checking Folder", "founded file: " + f);
             if (f.isFile()) {
-                Log.e("Checking Folder",f+" is file and his name is: "+f.getName());
-                if (f.getName().equals(filename)){
-                    Log.e("Checking Folder",f.getName()+" == "+filename);
+                Log.e("Checking Folder", f + " is file and his name is: " + f.getName());
+                if (f.getName().equals(filename)) {
+                    Log.e("Checking Folder", f.getName() + " == " + filename);
                     try {
-                        file_output = new BufferedWriter(new FileWriter(f,true));
+                        file_output = new BufferedWriter(new FileWriter(f, true));
                     } catch (Exception IOException) {
-                        Log.e("old file error","Cannot open oldFile");
+                        Log.e("old file error", "Cannot open oldFile");
                     }
                 }
             }
@@ -295,135 +221,48 @@ public class MainActivity extends Activity {
         return file_output;
     }
 
-    private void writeFile(){
-        int i=0;
+    private void writeFile() {
+        int i = 0;
         BufferedWriter output;
 
         //return the current date String formatted
         String now = getStringDateTime();
         //Define here the name of the file
-        String filename = now+"_data.txt";
+        String filename = now + "_data.txt";
 
         File newFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
-        Log.e("Folder","new Folder: "+newFolder);
+        Log.e("Folder", "new Folder: " + newFolder);
 
         if (!newFolder.exists()) {
             Log.e("Folder", "creating...");
-            if(newFolder.mkdirs()){
-                Log.e("Folder","Success Creating");
-            }
-            else {
-                Log.e("Folder","error Creating");
+            if (newFolder.mkdirs()) {
+                Log.e("Folder", "Success Creating");
+            } else {
+                Log.e("Folder", "error Creating");
             }
         }
 
         //checking Folder in order to find if we have the same datetime file if founded, create a new FileWritter
         output = checkFolderFiles(newFolder, filename);
 
-        if(output == null) {
+        if (output == null) {
             //file not exists, so we create it and create a new FileWritter
             File file = new File(newFolder, filename);
             output = NewFileCreation(file);
         }
 
         try {
-            for (i=0;i<results.size();i++);
-            output.write((results.get(i-1)).toString());
-
+            this.results = this.radino.getResults();
+            for(i = 0; i<results.size(); i++) {
+                output.write(results.get(i).toString());
+            }
             if (output != null) {
                 output.flush();
                 output.close();
+                this.radino.clearResults();
             }
         } catch (Exception IOException) {
             Log.e("Write in file", "Exception: " + IOException.getMessage());
         }
     }
-
-// ----------------END WRITE FILE FUNCTIONS-------------
-
-    public void enableTXNotification() {
-        final UUID UART_SERVICE = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-        final UUID TX_CHAR = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
-        final UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-
-        BluetoothGattService UartService = gatt.getService(UART_SERVICE);
-        if (UartService != null) {
-            BluetoothGattCharacteristic TxChar = UartService.getCharacteristic(TX_CHAR);
-            if (TxChar != null) {
-                gatt.setCharacteristicNotification(TxChar, true);
-                BluetoothGattDescriptor descriptor = TxChar.getDescriptor(CCCD);
-                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                gatt.writeDescriptor(descriptor);
-            }
-        }
-    }
-
-    public void ble() {
-        callback = new BluetoothGattCallback() {
-            @Override
-            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                Log.e("BLE", "newState = " + newState);
-                switch (newState){
-                    case 0:
-                        connect_status="Connect";
-                        text = "device disconnected";
-                        duration = Toast.LENGTH_LONG;
-                        break;
-                    case 1:
-                        connect_status="Connecting";
-                        text = "connecting to device";
-                        duration = Toast.LENGTH_SHORT;
-                        break;
-                    case 2:
-                        connect_status="Disconnect";
-                        text = "device connected";
-                        duration = Toast.LENGTH_LONG;
-                        gatt.discoverServices();
-                        break;
-                    case 3:
-                        connect_status="Disconnecting";
-                        text = "disconnecting device";
-                        duration = Toast.LENGTH_SHORT;
-                        break;
-                    default:
-                        text = "connection state unknown...";
-                        duration = Toast.LENGTH_LONG;
-                        break;
-                }
-            }
-
-            @Override
-            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-                // S'han descobert els serveis del perifèric
-                enableTXNotification();
-            }
-
-            @Override
-            public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-                // S'ha rebut una notificació, el seu valor s'obté amb characteristic.getValue();
-                if (started){
-                    //Rebuda de dades
-                    byte[] data = characteristic.getValue();
-                    Log.e("onCharChanged", "dades radino: [" + (double) (data[0]) + ", " + (double) (data[1])+ ", " + (double) (data[2]) + "]");//toDouble(data));
-
-                    // Processament de dades
-                    AccelData AD = new AccelData(1, System.currentTimeMillis(), data[0], data[1], data[2]);
-
-                    //Emmagatzematge de dades
-                    results.add(AD);
-                    writeFile();
-
-                    //Visualització dades
-                    graph.add(System.currentTimeMillis(), (double)(data[0]), (double)(data[1]), (double)(data[2]));
-                    graph.update();
-                }
-            }
-        };
-
-        this.manager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
-        this.adapter = manager.getAdapter();
-        this.device = adapter.getRemoteDevice(this.MACaddr);
-        this.gatt = device.connectGatt(this, false, callback);
-    }
 }
-
