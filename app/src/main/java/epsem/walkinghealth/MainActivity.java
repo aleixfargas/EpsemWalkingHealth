@@ -98,6 +98,7 @@ public class MainActivity extends Activity {
             default:
                 Log.e("permissions","OK");
         }
+        new ServerUploader().execute();
     }
 
     @Override

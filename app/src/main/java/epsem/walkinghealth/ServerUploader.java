@@ -1,5 +1,6 @@
 package epsem.walkinghealth;
 
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
@@ -13,7 +14,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
-public class ServerUploader {
+public class ServerUploader extends AsyncTask<Void, Void, Void> {
     public String urlServer = "http://localhost/prova/index.php";
     public String boundary = "*****";
     public URL url;
@@ -28,17 +29,18 @@ public class ServerUploader {
     public byte[] buffer;
     public int maxBufferSize = 1*1024*1024;
 
-    protected void doInBackground(){
+    @Override
+    protected Void doInBackground(Void... params) {
         //Thread que s'executa en background, accepta el pas de parametres
         //HTTP Post - Connexió persistent
        try {
 
-            url = new URL(urlServer);
+            URL url = new URL(urlServer);
             //HTTP Post - Connexió persistent
             StartConnection();
 
             //Lectura del fitxer
-            pathToOurFile = new File(Environment.getExternalStorageDirectory(), "2015-11-14_data.txt");
+            pathToOurFile = new File(Environment.getExternalStorageDirectory(), "2015-11-17_data.txt");
             fileInputStream = new FileInputStream(pathToOurFile);
             readFile();
 
@@ -52,7 +54,9 @@ public class ServerUploader {
        }catch (IOException ioe){
            Log.e("Server", "IOException when connecting");
        }
+        return null;
     }
+
 
     private void StartConnection() throws IOException {
 
