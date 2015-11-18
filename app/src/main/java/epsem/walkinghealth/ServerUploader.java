@@ -15,7 +15,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 
 public class ServerUploader extends AsyncTask<Void, Void, Void> {
-    public String urlServer = "http://localhost/prova/index.php";
+    public String urlServer = "10.42.0.1/prova/index.php";
     public String boundary = "*****";
     public URL url;
     public HttpURLConnection connection;
@@ -35,7 +35,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         //HTTP Post - Connexió persistent
        try {
 
-            URL url = new URL(urlServer);
+            this.url = new URL(urlServer);
             //HTTP Post - Connexió persistent
             StartConnection();
 
@@ -60,7 +60,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
 
     private void StartConnection() throws IOException {
 
-        connection = (HttpURLConnection) url.openConnection();
+        connection = (HttpURLConnection) this.url.openConnection();
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Connection", "Keep-Alive");
