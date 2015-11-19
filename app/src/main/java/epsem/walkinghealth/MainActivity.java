@@ -47,7 +47,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
     public boolean started = false;
-    public String MACaddr = "DB:0B:C0:B1:0D:38";
+    public String MACaddr = "F8:08:97:8B:45:29";
 
     //    public GraphChart graph = new GraphChart(getBaseContext());
     public GraphChart graph;

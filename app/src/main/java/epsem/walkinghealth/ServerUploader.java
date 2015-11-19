@@ -14,6 +14,12 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
+//Per connectar mòbil amb server:
+//- gksu gedit /etc/NetworkManager/system-connections/WalkingHealth
+//mode=ap
+//- Posar ip estàtica al mòbil 10.42.0.1 i passarela 10.42.0.255
+
+
 public class ServerUploader extends AsyncTask<Void, Void, Void> {
     public String urlServer = "10.42.0.1/prova/index.php";
     public String boundary = "*****";
@@ -40,7 +46,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
             StartConnection();
 
             //Lectura del fitxer
-            pathToOurFile = new File(Environment.getExternalStorageDirectory(), "2015-11-17_data.txt");
+            pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/2015-11-17_data.txt");
             fileInputStream = new FileInputStream(pathToOurFile);
             readFile();
 
