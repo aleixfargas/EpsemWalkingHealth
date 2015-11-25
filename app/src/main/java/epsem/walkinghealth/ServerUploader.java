@@ -39,23 +39,30 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... params) {
         //Thread que s'executa en background, accepta el pas de parametres
         //HTTP Post - Connexió persistent
+        Log.e("serveruploader","inici doinbackground");
        try {
+           this.url = new URL(urlServer);
+           //HTTP Post - Connexió persistent
+           Log.e("serveruploader", "abans startconnection");
+           StartConnection();
+           Log.e("serveruploader", "fet startconnection");
 
-            this.url = new URL(urlServer);
-            //HTTP Post - Connexió persistent
-            StartConnection();
+           //Lectura del fitxer
+           pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/2015-11-17_data.txt");
+           fileInputStream = new FileInputStream(pathToOurFile);
+           readFile();
+           Log.e("serveruploader", "fet readfile");
 
-            //Lectura del fitxer
-            pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/2015-11-17_data.txt");
-            fileInputStream = new FileInputStream(pathToOurFile);
-            readFile();
 
-            //Canal de sortida
-            outputStream = new DataOutputStream(connection.getOutputStream());
-            outputChannel();
+           //Canal de sortida
+           outputStream = new DataOutputStream(connection.getOutputStream());
+           outputChannel();
+           Log.e("serveruploader", "fet output channel");
 
             //Transmissió fitxer
-            transmitFile();
+           transmitFile();
+           Log.e("serveruploader", "fet transmitfile");
+
 
        }catch (IOException ioe){
            Log.e("Server", "IOException when connecting");
@@ -96,8 +103,8 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         }
         outputStream.writeBytes("\r\n");
         outputStream.writeBytes("--" + boundary + "--" + "\r\n");
-        Log.d("App", "Server response code: " + connection.getResponseCode());
-        Log.d("App", "Server response msg: " + connection.getResponseMessage());
+        Log.e("App", "Server response code: " + connection.getResponseCode());
+        Log.e("App", "Server response msg: " + connection.getResponseMessage());
         fileInputStream.close();
         outputStream.flush();
         outputStream.close();

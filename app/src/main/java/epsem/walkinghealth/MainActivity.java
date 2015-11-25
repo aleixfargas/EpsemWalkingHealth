@@ -47,7 +47,9 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
     public boolean started = false;
-    public String MACaddr = "F8:08:97:8B:45:29";
+//    public String MACaddr = "F8:08:97:8B:45:29";
+//    public String MACaddr = "DD:81:3C:77:F6:52";
+    public String MACaddr = "C3:EE:DD:D5:E8:CB";
 
     //    public GraphChart graph = new GraphChart(getBaseContext());
     public GraphChart graph;
@@ -59,7 +61,7 @@ public class MainActivity extends Activity {
 
     private ArrayList<AccelData> results = new ArrayList<>();
     private boolean connection_status = false;
-    private Button btnConnect, btnStartStop;
+    private Button btnConnect, btnStartStop, btnUpload;
 
     //Toast --> http://developer.android.com/guide/topics/ui/notifiers/toasts.html
     public Context appcontext;
@@ -82,23 +84,23 @@ public class MainActivity extends Activity {
         createConnectButton();
         createGraph();
         createStartButton();
+        createUploadButton();
         ble();
         //is able to writte files? popup
-        switch (checkExternalMedia()){
+        switch (checkExternalMedia()) {
             case 0:
-                Log.e("permissions","ERROR! 0");
+                Log.e("permissions", "ERROR! 0");
                 text = "Permission Writte Error";
                 Toast.makeText(appcontext, text, duration).show();
                 break;
 
             case -1:
-                Log.e("permissions","ERROR! -1");
+                Log.e("permissions", "ERROR! -1");
                 break;
 
             default:
-                Log.e("permissions","OK");
+                Log.e("permissions", "OK");
         }
-        new ServerUploader().execute();
     }
 
     @Override
@@ -122,7 +124,23 @@ public class MainActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+//----------------START UPLOAD BUTTON FUNCTIONS----------------
 
+    public void createUploadButton() {
+        btnUpload = (Button) findViewById(R.id.upload);
+
+        btnUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (btnUpload.getText().equals("Upload")) {
+                    ServerUploader upload = new ServerUploader();
+                    upload.execute();
+                }
+            }
+        });
+    }
+
+//----------------END UPLOAD BUTTON FUNCTIONS------------------
 //----------------START CONNECT BUTTON FUNCTIONS----------------
 
     public void createConnectButton(){
