@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 
 public class MainActivity extends Activity {
@@ -26,10 +27,16 @@ public class MainActivity extends Activity {
 
     private Button btnConnect, btnStartStop;
     public GraphChart graph;
-    public BLEConnection radino;
+    //public String MACaddr_right = "F8:08:97:8B:45:29";
+    public String MACaddr_right = "C3:EE:DD:D5:E8:CB";
+    //public String MACaddr_right = "DD:81:3C:77:F6:52";
+
+    public BLEConnection radino_right = null, radino_left = null;
+    public Thread connectThread = null;
 
     private ArrayList<AccelData> results = new ArrayList<>();
     public String connect_status = "Connect";
+    private Integer status = 0;
 
     //Toast --> http://developer.android.com/guide/topics/ui/notifiers/toasts.html
     public Context appcontext;
@@ -50,7 +57,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         createGraph();
-        this.radino = new BLEConnection(this.started, this.graph, this.getSystemService(Context.BLUETOOTH_SERVICE), appcontext);
 
         createConnectButton();
         createStartButton();
@@ -97,19 +103,71 @@ public class MainActivity extends Activity {
 //----------------START CONNECT BUTTON FUNCTIONS----------------
 
     public void createConnectButton() {
+        final CountDownLatch latch = new CountDownLatch(1);
         btnConnect = (Button) findViewById(R.id.connect);
         btnConnect.setText(connect_status);
+
+        connectThread = new Thread(new Runnable() {
+            @Override
+            public void run(){
+                if (radino_right != null) {
+                    Log.e("thread","radino_status="+radino_right.getStatus());
+                    if (!connect_status.equals(radino_right.getStatus())) {
+                        Log.e("thread","connect_status!=getStatus()");
+                        connect_status = radino_right.getStatus();
+                        if (connect_status.equals("Disconnect")) {
+                            status = 1;
+                        } else {
+                            radino_right = null;
+                            status = 0;
+                        }
+                        btnConnect.post(new Runnable() {
+                            public void run() {
+                                btnConnect.setText(connect_status);
+                            }
+                        });
+                        //btnConnect.setText(connect_status);
+
+                    }
+                }
+                latch.countDown();
+            }
+        });
+
+        connectThread.start();
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (btnConnect.getText().equals("Connect")) {
-                    radino.BLEconnect();
-                } else {
-                    radino.BLEdisconnect();
+                //Disconnect mode - BLE not connected and user wants to connect
+                if (btnConnect.getText().equals("Connect") && status == 0) {
+                    radino_right = new BLEConnection(MACaddr_right, started, graph, getSystemService(Context.BLUETOOTH_SERVICE), appcontext, connectThread);
+                    radino_right.BLEconnect();
+                    status=1;
+                    connect_status = "Connecting";
+                    btnConnect.setText("Connecting");
                 }
-                btnConnect.setText(connect_status);
-                Toast.makeText(appcontext, text, duration).show();
+                //connection mode - BLE connection established and user wants to disconnect
+                else if(btnConnect.getText().equals("Disconnect") && status == 1){
+                    radino_right.BLEdisconnect();
+                    radino_right=null;
+
+                    btnConnect.setText("Connect");
+                    btnStartStop.setText("Start");
+
+                    started = false;
+                    status=0;
+                }
+
+                else{
+                    /*Unknown state,maybe connecting, so do nothing*/
+                }
             }
         });
     }
@@ -133,14 +191,17 @@ public class MainActivity extends Activity {
         btnStartStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (btnStartStop.getText().equals("Start")) {
-                    started = true;
-                    graph.clear();
-                    btnStartStop.setText("Stop");
-                } else {
-                    started = false;
-                    writeFile();
-                    btnStartStop.setText("Start");
+                if (status == 1) {
+                    if (btnStartStop.getText().equals("Start")) {
+                        started = true;
+                        graph.clear();
+                        btnStartStop.setText("Stop");
+                    }
+                    else {
+                        started = false;
+                        writeFile();
+                        btnStartStop.setText("Start");
+                    }
                 }
             }
         });
@@ -189,7 +250,8 @@ public class MainActivity extends Activity {
                 Log.e("new File", "Success Creating");
                 FileWriter fw = new FileWriter(file);
                 newFile_bw = new BufferedWriter(fw);
-            } else {
+            }
+            else{
                 Log.e("new File", "error Creating");
             }
         } catch (Exception IOException) {
@@ -237,7 +299,8 @@ public class MainActivity extends Activity {
             Log.e("Folder", "creating...");
             if (newFolder.mkdirs()) {
                 Log.e("Folder", "Success Creating");
-            } else {
+            }
+            else {
                 Log.e("Folder", "error Creating");
             }
         }
@@ -252,14 +315,14 @@ public class MainActivity extends Activity {
         }
 
         try {
-            this.results = this.radino.getResults();
-            for(i = 0; i<results.size(); i++) {
-                output.write(results.get(i).toString());
+            this.results = this.radino_right.getResults();
+            for(i = 0; i<this.results.size(); i++) {
+                output.write(this.results.get(i).toString());
             }
             if (output != null) {
                 output.flush();
                 output.close();
-                this.radino.clearResults();
+                this.radino_right.clearResults();
             }
         } catch (Exception IOException) {
             Log.e("Write in file", "Exception: " + IOException.getMessage());

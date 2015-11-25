@@ -23,21 +23,24 @@ public class BLEConnection {
     public BluetoothGatt gatt;
     public BluetoothGattCallback callback;
 
-    public String MACaddr = "DB:0B:C0:B1:0D:38";
+    public String MACaddr;
     private ArrayList<AccelData> results = new ArrayList<>();
 
     //Toast --> http://developer.android.com/guide/topics/ui/notifiers/toasts.html
     public Context appcontext;
     public CharSequence text = "connecting to device";
     public int duration;
-    public String connect_status = "Connect";
+    private String connect_status = "Connect";
 
-    public BLEConnection(final boolean started, final GraphChart graph, final Object systemService, final Context appcontext) {
+    public BLEConnection(final String MACaddr, final boolean started, final GraphChart graph, final Object systemService, final Context appcontext, final Thread connectThread) {
+
+        this.MACaddr = MACaddr;
+
         callback = new BluetoothGattCallback() {
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 Log.e("BLE", "newState = " + newState);
-                switch (newState){
+                switch(newState){
                     case 0:
                         connect_status="Connect";
                         text = "device disconnected";
@@ -64,6 +67,7 @@ public class BLEConnection {
                         duration = Toast.LENGTH_LONG;
                         break;
                 }
+                connectThread.run();
             }
 
             @Override
@@ -128,6 +132,11 @@ public class BLEConnection {
     public boolean BLEdisconnect() {
         if (this.adapter != null && this.gatt != null) {
             this.gatt.disconnect();
+
+            this.manager = null;
+            this.adapter = null;
+            this.device = null;
+            this.gatt = null;
             return true;
         } else {
             return false;
@@ -136,6 +145,10 @@ public class BLEConnection {
 
     public ArrayList<AccelData> getResults(){
         return this.results;
+    }
+
+    public String getStatus(){
+        return this.connect_status;
     }
 
     public void clearResults(){
