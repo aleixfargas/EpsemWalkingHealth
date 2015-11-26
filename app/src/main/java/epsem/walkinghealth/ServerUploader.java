@@ -39,7 +39,6 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... params) {
         //Thread que s'executa en background, accepta el pas de parametres
         //HTTP Post - Connexió persistent
-        Log.e("serveruploader","inici doinbackground");
        try {
            this.url = new URL(urlServer);
            //HTTP Post - Connexió persistent
@@ -78,6 +77,9 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Connection", "Keep-Alive");
         connection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+        connection.setDoOutput(true);
+        Log.e("StartConnection", "Server response code: " + connection.getResponseCode());
+        Log.e("StartConnection", "Server response msg: " + connection.getResponseMessage());
     }
 
     private void readFile() throws IOException {
