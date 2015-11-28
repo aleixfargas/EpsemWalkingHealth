@@ -19,6 +19,7 @@ import android.bluetooth.BluetoothProfile;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -45,6 +46,11 @@ import android.app.Dialog;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 public class MainActivity extends Activity {
     public boolean started = false;
 //    public String MACaddr = "F8:08:97:8B:45:29";
@@ -68,6 +74,9 @@ public class MainActivity extends Activity {
     CharSequence text = "connecting to device";
     public int duration;
     public String connect_status="Connect";
+
+    public HttpServletRequest request;
+    public HttpServletResponse response;
 
     //Popup variables see: http://developer.android.com/guide/topics/ui/dialogs.html
     /*

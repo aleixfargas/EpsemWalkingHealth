@@ -21,7 +21,7 @@ import java.net.URL;
 
 
 public class ServerUploader extends AsyncTask<Void, Void, Void> {
-    public String urlServer = "10.42.0.1/prova/index.php";
+    public String urlServer = "http://10.42.0.1/prova/index.php";
     public String boundary = "*****";
     public URL url;
     public HttpURLConnection connection;
@@ -42,29 +42,23 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
        try {
            this.url = new URL(urlServer);
            //HTTP Post - Connexió persistent
-           Log.e("serveruploader", "abans startconnection");
            StartConnection();
-           Log.e("serveruploader", "fet startconnection");
 
            //Lectura del fitxer
            pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/2015-11-17_data.txt");
            fileInputStream = new FileInputStream(pathToOurFile);
            readFile();
-           Log.e("serveruploader", "fet readfile");
-
 
            //Canal de sortida
            outputStream = new DataOutputStream(connection.getOutputStream());
            outputChannel();
-           Log.e("serveruploader", "fet output channel");
 
             //Transmissió fitxer
            transmitFile();
-           Log.e("serveruploader", "fet transmitfile");
 
 
        }catch (IOException ioe){
-           Log.e("Server", "IOException when connecting");
+           Log.e("Server", "IOException when connecting"+ioe);
        }
         return null;
     }
@@ -78,16 +72,18 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         connection.setRequestProperty("Connection", "Keep-Alive");
         connection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
         connection.setDoOutput(true);
-        Log.e("StartConnection", "Server response code: " + connection.getResponseCode());
-        Log.e("StartConnection", "Server response msg: " + connection.getResponseMessage());
     }
 
-    private void readFile() throws IOException {
+    private String readFile() throws IOException {
 
         bytesAvailable = fileInputStream.available();
         bufferSize = Math.min(bytesAvailable, maxBufferSize);
         buffer = new byte[bufferSize];
         bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+        File f=new File("http://10.42.0.1/prova/uploads"+"/2015-11-17_data.txt");
+        System.out.println(f.exists());
+        fileInputStream = new FileInputStream(f);
+        return "SUCCESS";
     }
 
     private void outputChannel() throws IOException{
