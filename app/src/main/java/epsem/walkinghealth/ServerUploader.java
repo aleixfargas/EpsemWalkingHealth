@@ -18,6 +18,8 @@ import java.net.URL;
 //- gksu gedit /etc/NetworkManager/system-connections/WalkingHealth
 //mode=ap
 //- Posar ip estàtica al mòbil 10.42.0.1 i passarela 10.42.0.255
+//- Permisos:
+// sudo chown -R www-data:www-data /var/www/
 
 
 public class ServerUploader extends AsyncTask<Void, Void, Void> {
@@ -46,11 +48,13 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
 
            //Lectura del fitxer
            pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/2015-11-17_data.txt");
+           Log.e("app","fitxer: "+pathToOurFile);
            fileInputStream = new FileInputStream(pathToOurFile);
            readFile();
 
            //Canal de sortida
            outputStream = new DataOutputStream(connection.getOutputStream());
+           Log.e("App", "outputstream "+outputStream.toString());
            outputChannel();
 
             //Transmissió fitxer
@@ -74,21 +78,21 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         connection.setDoOutput(true);
     }
 
-    private String readFile() throws IOException {
+    private void readFile() throws IOException {
 
         bytesAvailable = fileInputStream.available();
         bufferSize = Math.min(bytesAvailable, maxBufferSize);
         buffer = new byte[bufferSize];
         bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-        File f=new File("http://10.42.0.1/prova/uploads"+"/2015-11-17_data.txt");
-        System.out.println(f.exists());
-        fileInputStream = new FileInputStream(f);
-        return "SUCCESS";
+//        File f=new File("http://10.42.0.1/prova/uploads"+"/2015-11-17_data.txt");
+//        System.out.println(f.exists());
+//        fileInputStream = new FileInputStream(f);
+//        return "SUCCESS";
     }
 
     private void outputChannel() throws IOException{
         outputStream.writeBytes("--" + boundary + "\r\n");
-        outputStream.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\";filename=\"" + pathToOurFile + "\"" + "\r\n");
+        outputStream.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\"" + pathToOurFile + "\"" + "\r\n");
         outputStream.writeBytes("\r\n");
     }
 
@@ -96,6 +100,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         while (bytesRead > 0) {
             outputStream.write(buffer, 0, bufferSize);
             bytesAvailable = fileInputStream.available();
+            Log.e("App", "Bytes read: " + buffer.length);
             bufferSize = Math.min(bytesAvailable, maxBufferSize);
             bytesRead = fileInputStream.read(buffer, 0, bufferSize);
         }
