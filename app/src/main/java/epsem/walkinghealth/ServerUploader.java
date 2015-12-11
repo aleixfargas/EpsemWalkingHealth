@@ -17,9 +17,12 @@ import java.net.URL;
 //Per connectar mòbil amb server:
 //- gksu gedit /etc/NetworkManager/system-connections/WalkingHealth
 //mode=ap
-//- Posar ip estàtica al mòbil 10.42.0.1 i passarela 10.42.0.255
+//- Posar ip estàtica al mòbil 10.42.0.2 i passarela 10.42.0.255
 //- Permisos:
 // sudo chown -R www-data:www-data /var/www/
+// Per canviar el limit max de mida de fitxer pujats a server php: upload_max_filesize a sudo nano /etc/php5/apache2/php.ini
+// maxima memoria d'un proces android: 16MB aprox. Per augmentar: android:largeHeap="true", no recomanat
+//en el meu cas: maxim = 8MB
 
 
 public class ServerUploader extends AsyncTask<Void, Void, Void> {
@@ -47,7 +50,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
            StartConnection();
 
            //Lectura del fitxer
-           pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/2015-11-17_data.txt");
+           pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/2015-11-23_data.txt");
            Log.e("app","fitxer: "+pathToOurFile);
            fileInputStream = new FileInputStream(pathToOurFile);
            readFile();
@@ -84,10 +87,6 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         bufferSize = Math.min(bytesAvailable, maxBufferSize);
         buffer = new byte[bufferSize];
         bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-//        File f=new File("http://10.42.0.1/prova/uploads"+"/2015-11-17_data.txt");
-//        System.out.println(f.exists());
-//        fileInputStream = new FileInputStream(f);
-//        return "SUCCESS";
     }
 
     private void outputChannel() throws IOException{
@@ -98,7 +97,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
 
     private void transmitFile() throws IOException{
         while (bytesRead > 0) {
-            outputStream.write(buffer, 0, bufferSize);
+            outputStream.write(buffer, 0, bufferSize); //Mida màxima 130MB
             bytesAvailable = fileInputStream.available();
             Log.e("App", "Bytes read: " + buffer.length);
             bufferSize = Math.min(bytesAvailable, maxBufferSize);
