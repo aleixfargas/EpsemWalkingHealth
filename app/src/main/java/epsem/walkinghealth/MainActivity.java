@@ -3,6 +3,7 @@ package epsem.walkinghealth;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -96,14 +97,12 @@ public class MainActivity extends Activity {
         createConnectButton();
         createGraph();
         createStartButton();
-
+        enableBLE();
         upload(); //ara puja fitxer cada vegada que hi ha wifi. Fer que pugi quan sigui major que XMB i dps l'esborri
 
         //createUploadButton();
 
-        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        int memoryClass = am.getMemoryClass();
-        Log.e("onCreate", "memoryClass:" + Integer.toString(memoryClass));
+        getMemory();
 
         ble();
         //is able to write files? popup
@@ -144,23 +143,15 @@ public class MainActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
-//----------------START UPLOAD BUTTON FUNCTIONS----------------
+// ----------------START GETMEMORY FUNCTIONS----------------
 
-    public void createUploadButton() {
-        btnUpload = (Button) findViewById(R.id.upload);
-
-        btnUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (btnUpload.getText().equals("Upload")) {
-                    ServerUploader upload = new ServerUploader();
-                    upload.execute();
-                }
-            }
-        });
+    public void getMemory() {
+        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        int memoryClass = am.getMemoryClass();
+        Log.e("onCreate", "memoryClass:" + Integer.toString(memoryClass));
     }
 
-//----------------END UPLOAD BUTTON FUNCTIONS------------------
+//----------------END GETMEMORY FUNCTIONS------------------
 // ----------------START UPLOAD FUNCTION----------------
 
     public void upload(){
@@ -171,9 +162,19 @@ public class MainActivity extends Activity {
             ServerUploader upload = new ServerUploader();
             upload.execute();
         }
+        boolean deleted = ServerUploader.pathToOurFile.delete();
     }
 
 // ----------------END UPLOAD FUNCTION------------------
+// ----------------START ENABLEBLE FUNCTION----------------
+
+    public void enableBLE(){
+        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
+        startActivity(discoverableIntent);
+    }
+
+// ----------------END ENABLEBLE FUNCTION------------------
 //----------------START CONNECT BUTTON FUNCTIONS----------------
 
     public void createConnectButton(){
@@ -192,32 +193,6 @@ public class MainActivity extends Activity {
                 Toast.makeText(appcontext, text, duration).show();
             }
         });
-
-        //        adapter = BluetoothAdapter.getDefaultAdapter();
-//
-//        btnConnect.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (!adapter.isEnabled()) {
-//                    Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//                    startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-//                }
-//                else{
-//                    if (btnConnect.getText().equals("Connect")){
-//
-//                        //Connect button pressed, open DeviceListActivity class, with popup windows that scan for devices
-//
-//                        Intent newIntent = new Intent(MainActivity.this, DeviceListActivity.class);
-//                        startActivityForResult(newIntent, REQUEST_SELECT_DEVICE);
-//                    }
-//                    else {
-//                        //Disconnect button pressed
-//                        if (device != null) {
-//                            mService.disconnect();
-//                        }
-//                    }
-//        });
-//    }
     }
 
     public boolean connect() {
