@@ -1,7 +1,10 @@
 package epsem.walkinghealth;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -93,9 +96,17 @@ public class MainActivity extends Activity {
         createConnectButton();
         createGraph();
         createStartButton();
-        createUploadButton();
+
+        upload(); //ara puja fitxer cada vegada que hi ha wifi. Fer que pugi quan sigui major que XMB i dps l'esborri
+
+        //createUploadButton();
+
+        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        int memoryClass = am.getMemoryClass();
+        Log.e("onCreate", "memoryClass:" + Integer.toString(memoryClass));
+
         ble();
-        //is able to writte files? popup
+        //is able to write files? popup
         switch (checkExternalMedia()) {
             case 0:
                 Log.e("permissions", "ERROR! 0");
@@ -150,6 +161,19 @@ public class MainActivity extends Activity {
     }
 
 //----------------END UPLOAD BUTTON FUNCTIONS------------------
+// ----------------START UPLOAD FUNCTION----------------
+
+    public void upload(){
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getActiveNetworkInfo();
+
+        if (mWifi.isConnected()) {
+            ServerUploader upload = new ServerUploader();
+            upload.execute();
+        }
+    }
+
+// ----------------END UPLOAD FUNCTION------------------
 //----------------START CONNECT BUTTON FUNCTIONS----------------
 
     public void createConnectButton(){
