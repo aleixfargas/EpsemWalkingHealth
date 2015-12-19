@@ -162,7 +162,6 @@ public class MainActivity extends Activity {
             ServerUploader upload = new ServerUploader();
             upload.execute();
         }
-        boolean deleted = ServerUploader.pathToOurFile.delete();
     }
 
 // ----------------END UPLOAD FUNCTION------------------
@@ -323,7 +322,7 @@ public class MainActivity extends Activity {
     }
 
     private void writeFile(){
-        int i=0;
+        int i, j;
         BufferedWriter output;
 
         //return the current date String formatted
@@ -355,8 +354,10 @@ public class MainActivity extends Activity {
 
         try {
             for (i=0;i<results.size();i++);
-            output.write((results.get(i-1)).toString());
-
+            /*for (j=0;j<180000;j++) { //com que no se com calcular mida fitxer, escrivim tantes linies com la mida maxima que podem
+                output.write((results.get(i - 1)).toString());
+            }*/
+            output.write((results.get(i - 1)).toString());
             if (output != null) {
                 output.flush();
                 output.close();
