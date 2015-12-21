@@ -93,9 +93,9 @@ public class BLEConnection {
     }
 
 
-    public void forwardDataReceived(String MACaddr, ArrayList<AccelData> results) {
+    public void forwardDataReceived(String MACaddr, AccelData result) {
         for (BLEConnectionListener listener: listeners) {
-            listener.onDataReceived(MACaddr, results);
+            listener.onDataReceived(MACaddr, result);
         }
     }
 
@@ -142,13 +142,10 @@ public class BLEConnection {
                 Log.e("onCharChanged", "dades radino: [" + (double) (data[0]) + ", " + (double) (data[1])+ ", " + (double) (data[2]) + "]");//toDouble(data));
 
                 // Processament de dades
-                AccelData AD = new AccelData(1, System.currentTimeMillis(), data[0], data[1], data[2]);
+                AccelData AD = new AccelData(id, System.currentTimeMillis(), data[0], data[1], data[2]);
 
-                //Emmagatzematge de dades
-                results.add(AD);
-
-                //Visualització dades
-                forwardDataReceived(MACaddrArray.get(id), results);
+                //Visualització dades + Emmagatzematge de dades
+                forwardDataReceived(MACaddrArray.get(id), AD);
             }
         };
         Log.e("callback","callback #"+id+" created");
@@ -237,23 +234,5 @@ public class BLEConnection {
         else{
             return false;
         }
-    }
-
-
-    /**
-     * Method called from GraphActivity, in order to write in the file
-     *
-     * @return ArrayList<AccelData> contains all the characteristics received
-     */
-    public ArrayList<AccelData> getResults(){
-        return this.results;
-    }
-
-
-    /**
-     * Clear all the data received from the moment
-     */
-    public void clearResults(){
-        this.results.clear();
     }
 }

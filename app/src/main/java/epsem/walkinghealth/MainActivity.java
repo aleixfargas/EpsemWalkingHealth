@@ -149,7 +149,7 @@ public class MainActivity extends Activity implements BLEConnectionListener {
 
 
     @Override
-    public void onDataReceived(String MACaddr, ArrayList<AccelData> results){}
+    public void onDataReceived(String MACaddr, AccelData result){}
 
 
     public void createConnectButton() {

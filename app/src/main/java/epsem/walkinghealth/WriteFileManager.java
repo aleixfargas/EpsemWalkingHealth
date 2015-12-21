@@ -17,21 +17,27 @@ import java.util.concurrent.TimeUnit;
 
 public class WriteFileManager {
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
-
+    public GraphActivity graphActivity = null;
     public ArrayList<AccelData> results = null;
     public BLEConnection BleConnection = null;
 
 
-    public WriteFileManager(BLEConnection BleConnection) {
+    public WriteFileManager(BLEConnection BleConnection, final GraphActivity graphActivity) {
         this.BleConnection = BleConnection;
+        this.graphActivity = graphActivity;
+
         Runnable task = new Runnable() {
             public void run() {
+                results = graphActivity.getResults();
                 if (results != null) {
                     writeFile();
+                    graphActivity.clearResults();
+                    results = null;
                 }
+                Log.e("WriteFile","auto-executing Writter task");
             }
         };
-        worker.schedule(task, 1, TimeUnit.MINUTES);
+        worker.scheduleAtFixedRate(task, 1, 1, TimeUnit.MINUTES);
     }
 
 
@@ -105,7 +111,8 @@ public class WriteFileManager {
             Log.e("Folder", "creating...");
             if (newFolder.mkdirs()) {
                 Log.e("Folder", "Success Creating");
-            } else {
+            }
+            else{
                 Log.e("Folder", "error Creating");
             }
         }
@@ -120,17 +127,15 @@ public class WriteFileManager {
         }
 
         try {
-            this.results = this.BleConnection.getResults();
             for (i = 0; i < this.results.size(); i++) {
                 output.write(this.results.get(i).toString());
             }
-
             if (output != null) {
                 output.flush();
                 output.close();
-                this.BleConnection.clearResults();
             }
-        } catch (Exception IOException) {
+        }
+        catch (Exception IOException) {
             Log.e("Write in file", "Exception: " + IOException.getMessage());
         }
     }
@@ -140,9 +145,11 @@ public class WriteFileManager {
         if(this.results != null) {
             this.results = this.concatenate(this.results, new_results);
         }
-        else{
+        else {
             this.results = new_results;
         }
+
+        this.graphActivity.clearResults();
     }
 
 

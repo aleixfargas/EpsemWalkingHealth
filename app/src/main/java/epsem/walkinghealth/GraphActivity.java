@@ -13,12 +13,19 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GraphActivity extends Activity implements BLEConnectionListener {
     public Button btnClearGraph;
     public GraphChart graph = null;
     public BLEConnection BleConnection = null;
     public WriteFileManager writeFileManager = null;
+    public ArrayList<AccelData> results;
+
+    private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +66,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         BleConnection = BLEConnection.getInstance();
         BleConnection.addListener(this);
 
-        writeFileManager = new WriteFileManager(BleConnection);
+        writeFileManager = new WriteFileManager(BleConnection, this);
     }
 
     @Override
@@ -80,7 +87,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
     }
 
     @Override
-    public void onDataReceived(String MACaddr, ArrayList<AccelData> results) {
+    public void onDataReceived(String MACaddr, AccelData result) {
         Log.e("GraphActivity", "Data received from " + MACaddr);
         Double x = results.get(results.size()).x;
         Double y = results.get(results.size()).y;
@@ -90,7 +97,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         graph.add(System.currentTimeMillis(), x, y, z);
         graph.update();
 
-        writeFileManager.refreshResults(results);
+        this.results.add(result);
     }
 
 
@@ -109,7 +116,6 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
             @Override
             public void onClick(View v) {
                 graph.clear();
-                writeFileManager.writeFile();
             }
         });
     }
@@ -122,5 +128,23 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
             ServerUploader upload = new ServerUploader();
             upload.execute();
         }
+    }
+
+
+    /**
+     * Method called from WriteFileManager, in order to write in the file
+     *
+     * @return ArrayList<AccelData> contains all the characteristics received
+     */
+    public ArrayList<AccelData> getResults(){
+        return this.results;
+    }
+
+
+    /**
+     * Clear all the data received from the moment
+     */
+    public void clearResults(){
+        this.results.clear();
     }
 }

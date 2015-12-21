@@ -26,8 +26,8 @@ public interface BLEConnectionListener {
      * BLEConnection will launch this method when we receive some data from the remote device.
      *
      * @param MACaddr MAC address of the remote device that send a characteristic
-     * @param results Array of the type AccelData that contains the results received at the moment
+     * @param result contain a result received at the moment
     */
-    void onDataReceived(String MACaddr, ArrayList<AccelData> results);
+    void onDataReceived(String MACaddr, AccelData result);
 
 }
