@@ -11,8 +11,10 @@ import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
+import java.io.Serializable;
 
-public class GraphChart {
+
+public class GraphChart implements Serializable {
     private XYSeries xSeries = new XYSeries("X");
     private XYSeries ySeries = new XYSeries("Y");
     private XYSeries zSeries = new XYSeries("Z");
