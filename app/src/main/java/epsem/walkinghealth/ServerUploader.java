@@ -50,7 +50,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
            StartConnection();
 
            //Lectura del fitxer
-           pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/2015-12-19_data.txt");
+           pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/2015-12-21_data.txt");
            Log.e("app","fitxer: "+pathToOurFile);
            fileInputStream = new FileInputStream(pathToOurFile);
            readFile();
