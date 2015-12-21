@@ -78,12 +78,6 @@ public class MainActivity extends Activity implements BLEConnectionListener {
         super.onResume();
         this.BleConnection = BLEConnection.getInstance();
         this.BleConnection.addListener(this);
-        if(this.BleConnection!=null) {
-            this.BleConnection.enableBluetoothAdapter(getSystemService(Context.BLUETOOTH_SERVICE), this);
-        }
-        else{
-            Log.e("Main","noo BleConnection created!");
-        }
     }
 
 
@@ -92,12 +86,6 @@ public class MainActivity extends Activity implements BLEConnectionListener {
         super.onPause();
         this.BleConnection = BLEConnection.getInstance();
         this.BleConnection.removeListener(this);
-        if(this.BleConnection!=null) {
-            this.BleConnection.enableBluetoothAdapter(getSystemService(Context.BLUETOOTH_SERVICE), this);
-        }
-        else{
-            Log.e("Main","noo BleConnection created!");
-        }
     }
 
 
@@ -107,12 +95,6 @@ public class MainActivity extends Activity implements BLEConnectionListener {
 
         switch (newStatus){
             case DEVICE_DISCONNECTED:
-                /*if(nextScreen != null){
-                    //to finishActivity from parent, we should start the Activity with startActivityForResult method
-                    finishActivity(1);
-                }
-                BleConnection = null;
-                */
                 status = 0;
                 connect_status = "Connect";
                 btnConnect.post(new Runnable() {
@@ -167,7 +149,7 @@ public class MainActivity extends Activity implements BLEConnectionListener {
 
 
     @Override
-    public void onDataReceived(String MACaddr, double x, double y, double z){}
+    public void onDataReceived(String MACaddr, ArrayList<AccelData> results){}
 
 
     public void createConnectButton() {
