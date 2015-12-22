@@ -159,7 +159,7 @@ public class MainActivity extends Activity implements BLEConnectionListener {
             @Override
             public void onClick(View v) {
                 //Disconnect mode - BLE not connected and user wants to connect
-                if (btnConnect.getText().equals("Connect")) {
+                if (btnConnect.getText().equals("Connect") && status == 0) {
                     connect_status = "Connecting";
                     btnConnect.setText(connect_status);
 
@@ -177,7 +177,8 @@ public class MainActivity extends Activity implements BLEConnectionListener {
                 else if (btnConnect.getText().equals("Disconnect") && status == 1) {
                     BleConnection.BLEdisconnect(RADINO_RIGHT);
                     status = 0;
-                } else {
+                }
+                else if(btnConnect.getText().equals("")){
                     /*Unknown state, button has no name, so setting to disconnect mode*/
                     status = 0;
                     btnConnect.setText("Connect");
