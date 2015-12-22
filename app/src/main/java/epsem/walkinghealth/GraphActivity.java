@@ -65,7 +65,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         BleConnection = BLEConnection.getInstance();
         BleConnection.addListener(this);
 
-        writeFileManager = new WriteFileManager(BleConnection, this);
+        writeFileManager = new WriteFileManager(this);
     }
 
     @Override
