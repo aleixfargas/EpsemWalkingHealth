@@ -15,7 +15,6 @@ import android.widget.LinearLayout;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class GraphActivity extends Activity implements BLEConnectionListener {
     public Button btnClearGraph;
@@ -132,7 +131,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
 
 
     /**
-     * Method called from WriteFileManager, in order to write in the file
+     * Method called from WriteFileManager, in order to write in the file every minute
      *
      * @return ArrayList<AccelData> contains all the characteristics received
      */

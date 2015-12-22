@@ -19,16 +19,19 @@ public class WriteFileManager {
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
     public GraphActivity graphActivity = null;
     public ArrayList<AccelData> results = null;
-    public BLEConnection BleConnection = null;
 
-
-    public WriteFileManager(BLEConnection BleConnection, final GraphActivity graphActivity) {
-        this.BleConnection = BleConnection;
+    /**
+     * Initializes a task that will be executed after every minute.
+     *
+     * @param graphActivity
+     *      Gets the GraphActivity to read the results received from the BluetoothGattCallback
+     */
+    public WriteFileManager(final GraphActivity graphActivity) {
         this.graphActivity = graphActivity;
 
         Runnable task = new Runnable() {
             public void run() {
-                results = graphActivity.getResults();
+                results = concatenate(results, graphActivity.getResults());
                 if (results != null) {
                     writeFile();
                     graphActivity.clearResults();
@@ -141,26 +144,16 @@ public class WriteFileManager {
     }
 
 
-    public void refreshResults(ArrayList<AccelData> new_results) {
-        if(this.results != null) {
-            this.results = this.concatenate(this.results, new_results);
-        }
-        else {
-            this.results = new_results;
-        }
-
-        this.graphActivity.clearResults();
-    }
-
-
     public ArrayList<AccelData> concatenate(ArrayList<AccelData> a, ArrayList<AccelData> b) {
         int aLen = a.size();
         int bLen = b.size();
-
+        Log.e("concatenating","a= "+aLen+"+ b="+bLen);
         @SuppressWarnings("unchecked")
         ArrayList<AccelData> c = (ArrayList<AccelData>) Array.newInstance(a.getClass().getComponentType(), aLen + bLen);
         System.arraycopy(a, 0, c, 0, aLen);
         System.arraycopy(b, 0, c, aLen, bLen);
+
+        Log.e("concatenated", "c= " + c.size());
 
         return c;
     }
