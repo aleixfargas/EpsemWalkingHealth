@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class WriteFileManager {
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
     public GraphActivity graphActivity = null;
-    public ArrayList<AccelData> results = null;
+    public ArrayList<AccelData> results = new ArrayList<>();;
 
     /**
      * Initializes a task that will be executed after every minute.
@@ -28,19 +28,22 @@ public class WriteFileManager {
      */
     public WriteFileManager(final GraphActivity graphActivity) {
         this.graphActivity = graphActivity;
+        Log.e("WriteFile","creating Writter task");
 
         Runnable task = new Runnable() {
             public void run() {
-                results = concatenate(results, graphActivity.getResults());
-                if (results != null) {
-                    writeFile();
-                    graphActivity.clearResults();
-                    results = null;
-                }
                 Log.e("WriteFile","auto-executing Writter task");
+                results = concatenate(results, graphActivity.getResults());
+                Log.e("WriteFile", "Clearing Results");
+                graphActivity.clearResults();
+                Log.e("WriteFile", "Cleared Results");
+                if (results != null) {
+                    Log.e("WriteFile", "results size = " + results.size());
+                    writeFile();
+                }
             }
         };
-        worker.scheduleAtFixedRate(task, 1, 1, TimeUnit.MINUTES);
+        worker.scheduleAtFixedRate(task, 30, 30, TimeUnit.SECONDS);
     }
 
 
@@ -131,7 +134,9 @@ public class WriteFileManager {
 
         try {
             for (i = 0; i < this.results.size(); i++) {
+                Log.e("Writting", "results["+i+"] ="+ this.results.get(i).toString());
                 output.write(this.results.get(i).toString());
+                results.remove(i);
             }
             if (output != null) {
                 output.flush();
@@ -147,13 +152,39 @@ public class WriteFileManager {
     public ArrayList<AccelData> concatenate(ArrayList<AccelData> a, ArrayList<AccelData> b) {
         int aLen = a.size();
         int bLen = b.size();
-        Log.e("concatenating","a= "+aLen+"+ b="+bLen);
-        @SuppressWarnings("unchecked")
-        ArrayList<AccelData> c = (ArrayList<AccelData>) Array.newInstance(a.getClass().getComponentType(), aLen + bLen);
-        System.arraycopy(a, 0, c, 0, aLen);
-        System.arraycopy(b, 0, c, aLen, bLen);
+        ArrayList<AccelData> c = new ArrayList<>(aLen+bLen);
 
-        Log.e("concatenated", "c= " + c.size());
+        if(!a.isEmpty() && b.isEmpty()){
+            Log.e("concatenating", "c =  b");
+            for(AccelData r : a){
+                c.add(r);
+            }
+            a.clear();
+        }
+        else if(a.isEmpty() && !b.isEmpty()){
+            Log.e("concatenate", "concatenating c =  a");
+            for(AccelData r : b){
+                c.add(r);
+            }
+            b.clear();
+        }
+        else if(!a.isEmpty() && !b.isEmpty()){
+            Log.e("concatenate", "concatenating a = " + aLen + "+ b =" + bLen);
+
+            for(AccelData r1 : a){
+                c.add(r1);
+            }
+            for(AccelData r2 : b){
+                c.add(r2);
+            }
+            a.clear();
+            b.clear();
+
+            Log.e("concatenate", "concatenated");
+        }
+        else{
+            Log.e("concatenate", "concatenated c = null");
+        }
 
         return c;
     }

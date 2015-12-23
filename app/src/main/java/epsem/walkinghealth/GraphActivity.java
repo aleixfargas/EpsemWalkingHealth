@@ -21,7 +21,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
     public GraphChart graph = null;
     public BLEConnection BleConnection = null;
     public WriteFileManager writeFileManager = null;
-    public ArrayList<AccelData> results;
+    private ArrayList<AccelData> results = new ArrayList<>();
 
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
 
@@ -34,6 +34,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         createGraph();
 
         createClearGraphButton();
+        this.writeFileManager = new WriteFileManager(this);
         upload();
     }
 
@@ -64,8 +65,6 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         super.onResume();
         BleConnection = BLEConnection.getInstance();
         BleConnection.addListener(this);
-
-        writeFileManager = new WriteFileManager(this);
     }
 
     @Override
@@ -73,7 +72,6 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         super.onPause();
         BleConnection = BLEConnection.getInstance();
         BleConnection.removeListener(this);
-        writeFileManager=null;
     }
 
     @Override
@@ -87,16 +85,16 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
 
     @Override
     public void onDataReceived(String MACaddr, AccelData result) {
+        Double x = result.x;
+        Double y = result.y;
+        Double z = result.z;
         Log.e("GraphActivity", "Data received from " + MACaddr);
-        Double x = results.get(results.size()).x;
-        Double y = results.get(results.size()).y;
-        Double z = results.get(results.size()).z;
+
+        this.results.add(result);
 
         graph.toString();
         graph.add(System.currentTimeMillis(), x, y, z);
         graph.update();
-
-        this.results.add(result);
     }
 
 
@@ -136,6 +134,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
      * @return ArrayList<AccelData> contains all the characteristics received
      */
     public ArrayList<AccelData> getResults(){
+        Log.e("WriteFileManager","Getting GraphA results");
         return this.results;
     }
 
