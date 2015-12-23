@@ -13,8 +13,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class GraphActivity extends Activity implements BLEConnectionListener {
     public Button btnClearGraph;
@@ -22,9 +20,6 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
     public BLEConnection BleConnection = null;
     public WriteFileManager writeFileManager = null;
     private ArrayList<AccelData> results = new ArrayList<>();
-
-    private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
