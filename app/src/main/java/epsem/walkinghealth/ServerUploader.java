@@ -13,6 +13,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 //Per connectar mòbil amb server:
 //- gksu gedit /etc/NetworkManager/system-connections/WalkingHealth
@@ -49,24 +52,30 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
            //HTTP Post - Connexió persistent
            StartConnection();
 
-           //Lectura del fitxer
-           pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/2015-12-21_data.txt");
+           Calendar calendar = Calendar.getInstance();
+           int hour = calendar.get(Calendar.HOUR_OF_DAY);
+           int minute = calendar.get(Calendar.MINUTE);
+
+           String now = getStringDateTime();
+           String filename = now +"-"+ hour +"-"+ minute + "_data.txt"; Falta provar i canviar el format del writefile
+           pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/"+filename);
            Log.e("app","fitxer: "+pathToOurFile);
            fileInputStream = new FileInputStream(pathToOurFile);
            readFile();
 
            //Canal de sortida
            outputStream = new DataOutputStream(connection.getOutputStream());
-           Log.e("App", "outputstream "+outputStream.toString());
+           Log.e("App", "outputstream " + outputStream.toString());
            outputChannel();
 
             //Transmissió fitxer
            transmitFile();
 
            //Elimina fitxer
-           boolean deleted = pathToOurFile.delete();
-           Log.e("App","fitxer pujat i eliminat: "+deleted);
-
+           if (connection.getResponseCode() ==  OK!){
+               boolean deleted = pathToOurFile.delete();
+               Log.e("App", "fitxer pujat i eliminat: " + deleted);
+           }
 
        }catch (IOException ioe){
            Log.e("Server", "IOException when connecting"+ioe);
@@ -74,6 +83,16 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
+    private String getStringDateTime() {
+        // (1) get today's date
+        Date today = Calendar.getInstance().getTime();
+
+        // (2) create a date "formatter" (the date format we want)
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        // (3) create a new String using the date format we want
+        return formatter.format(today);
+    }
 
     private void StartConnection() throws IOException {
 
@@ -101,7 +120,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
 
     private void transmitFile() throws IOException{
         while (bytesRead > 0) {
-            outputStream.write(buffer, 0, bufferSize); //Mida màxima 130MB
+            outputStream.write(buffer, 0, bufferSize);
             bytesAvailable = fileInputStream.available();
             Log.e("App", "Bytes read: " + buffer.length);
             bufferSize = Math.min(bytesAvailable, maxBufferSize);

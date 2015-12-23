@@ -42,6 +42,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener{
         createGraph();
 
         createClearGraphButton();
+        Fer event onWifiDetected per pujar fitxer
         upload();
     }
 
