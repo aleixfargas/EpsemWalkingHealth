@@ -18,11 +18,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class WriteFileManager {
-    private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
     public GraphActivity graphActivity = null;
     public ArrayList<AccelData> results = new ArrayList<>();;
 
+    private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
 
+    
     /**
      * Initializes a task that will be executed after every minute.
      *
@@ -157,16 +158,16 @@ public class WriteFileManager {
 
         File resultsFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
         File resultsFile = new File(resultsFolder, filename+fileExtension);
-
         BufferedWriter output;
+        FileWriter fw;
 
         Boolean success = false;
         int i = 0;
 
         if(createFolder(resultsFolder)) {
-            if(createFile(resultsFile)) {
+            if (createFile(resultsFile)) {
                 //create a BufferedWritter to write in the file
-                FileWriter fw = new FileWriter(resultsFile);
+                fw = new FileWriter(resultsFile);
                 output = new BufferedWriter(fw);
 
                 for (i = 0; i < this.results.size(); i++) {

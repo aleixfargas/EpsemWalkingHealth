@@ -19,6 +19,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
     public GraphChart graph = null;
     public BLEConnection BleConnection = null;
     public WriteFileManager writeFileManager = null;
+
     private ArrayList<AccelData> results = new ArrayList<>();
 
     @Override
@@ -83,6 +84,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         Double x = result.x;
         Double y = result.y;
         Double z = result.z;
+
         Log.e("GraphActivity", "Data received from " + MACaddr);
 
         this.results.add(result);
@@ -101,6 +103,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         layout.addView(graph.getView());
     }
 
+
     public void createClearGraphButton() {
         btnClearGraph = (Button) findViewById(R.id.cleargraph);
 
@@ -111,6 +114,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
             }
         });
     }
+
 
     public void upload() {
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
