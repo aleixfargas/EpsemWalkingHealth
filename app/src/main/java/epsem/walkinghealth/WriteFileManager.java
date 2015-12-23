@@ -6,8 +6,10 @@ import android.util.Log;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.lang.reflect.Array;
+import java.io.IOException;
+
 import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -20,6 +22,7 @@ public class WriteFileManager {
     public GraphActivity graphActivity = null;
     public ArrayList<AccelData> results = new ArrayList<>();;
 
+
     /**
      * Initializes a task that will be executed after every minute.
      *
@@ -28,18 +31,19 @@ public class WriteFileManager {
      */
     public WriteFileManager(final GraphActivity graphActivity) {
         this.graphActivity = graphActivity;
-        Log.e("WriteFile","creating Writter task");
 
         Runnable task = new Runnable() {
             public void run() {
-                Log.e("WriteFile","auto-executing Writter task");
+                Log.d("WriteFileManager","auto-executing Writter task");
                 results = concatenate(results, graphActivity.getResults());
-                Log.e("WriteFile", "Clearing Results");
                 graphActivity.clearResults();
-                Log.e("WriteFile", "Cleared Results");
                 if (results != null) {
                     Log.e("WriteFile", "results size = " + results.size());
-                    writeFile();
+                    try {
+                        writeFile();
+                    } catch (IOException e) {
+                        Log.e("WriteFileManager","Failed to write in the File");
+                    }
                 }
             }
         };
@@ -47,6 +51,36 @@ public class WriteFileManager {
     }
 
 
+    /**
+     *  Concatenates two arrays
+     *
+     * @param target
+     *      ArrayList<AccelData> type list that we want to fill with the src contents
+     * @param src
+     *      ArrayList<AccelData> type list that content the data we want to include in the target data
+
+     * @return ArrayList<AccelData>
+     *      Containing target+src data concatenated
+     */
+    public ArrayList<AccelData> concatenate(ArrayList<AccelData> target, ArrayList<AccelData> src) {
+        if(!src.isEmpty()){
+            Log.e("concatenate", "concatenating");
+            for(AccelData r : src){
+                target.add(r);
+            }
+            Log.e("concatenate", "concatenated");
+        }
+
+        return target;
+    }
+
+
+    /**
+     * Method to get the dateTime formated as String Object
+     *
+     * @return
+     *      String containing the dateTime of the object
+     */
     private String getStringDateTime() {
         // (1) get today's date
         Date today = Calendar.getInstance().getTime();
@@ -59,133 +93,96 @@ public class WriteFileManager {
     }
 
 
-    private BufferedWriter NewFileCreation(File file) {
-        BufferedWriter newFile_bw = null;
-        try {
-            if (file.createNewFile()) {
-                Log.e("new File", "Success Creating");
-                FileWriter fw = new FileWriter(file);
-                newFile_bw = new BufferedWriter(fw);
-            } else {
-                Log.e("new File", "error Creating");
-            }
-        } catch (Exception IOException) {
-            Log.e("new writter error", "Cannot create new file");
-        }
+    /**
+     * Method to check if exists a file, if not, create it.
+     *
+     * @param file
+     *      File object to create
+     *
+     * @return Boolean
+     *      True when success, false otherwise.
+     * @throws IOException
+     *      When failed
+     */
+    private Boolean createFile(File file) throws IOException {
+        Boolean r = true;
 
-        return newFile_bw;
-    }
-
-
-    private BufferedWriter checkFolderFiles(File newFolder, String filename) {
-        BufferedWriter file_output = null;
-
-        File[] listOfFiles = newFolder.listFiles();
-        for (File f : listOfFiles) {
-            Log.e("Checking Folder", "founded file: " + f);
-            if (f.isFile()) {
-                Log.e("Checking Folder", f + " is file and his name is: " + f.getName());
-                if (f.getName().equals(filename)) {
-                    Log.e("Checking Folder", f.getName() + " == " + filename);
-                    try {
-                        file_output = new BufferedWriter(new FileWriter(f, true));
-                    }
-                    catch (Exception IOException) {
-                        Log.e("old file error", "Cannot open oldFile");
-                    }
-                }
+        if (!file.exists()) {
+            Log.e("WriteFileManager", "creating new File: " + file);
+            if(!file.createNewFile()){
+                r = false;
             }
         }
 
-        return file_output;
+        return r;
     }
 
 
-    public void writeFile() {
-        int i = 0;
+    /**
+     * Method to check if exists a folder, if not, create it
+     *
+     * @param folder
+     *      Folder we want to create
+     * @return boolean
+     *      True when success, false otherwise.
+     */
+    private Boolean createFolder(File folder){
+        Boolean r = true;
+        if (!folder.exists()) {
+            Log.e("WriteFileManager", "creating new Folder: " + folder);
+            if (!folder.mkdirs()) {
+                r = false;
+            }
+        }
+
+        return r;
+    }
+
+
+    /**
+     * Method to write the results into the resultsFile.
+     * It clears each result of the ArrayList<AccelData> results immediatly after writting it.
+     *
+     *
+     * @return Boolean
+     *      True on success, otherwise false.
+     *
+     * @throws IOException
+     *      When failed to create, open or write a file or directory
+     */
+    public Boolean writeFile() throws IOException {
+        String now = getStringDateTime();
+        String filename = now + "_data";
+        String fileExtension = ".txt";
+
+        File resultsFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
+        File resultsFile = new File(resultsFolder, filename+fileExtension);
+
         BufferedWriter output;
 
-        //return the current date String formatted
-        String now = getStringDateTime();
-        //Define here the name of the file
-        String filename = now + "_data.txt";
+        Boolean success = false;
+        int i = 0;
 
-        File newFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
-        Log.e("Folder", "new Folder: " + newFolder);
+        if(createFolder(resultsFolder)) {
+            if(createFile(resultsFile)) {
+                //create a BufferedWritter to write in the file
+                FileWriter fw = new FileWriter(resultsFile);
+                output = new BufferedWriter(fw);
 
-        if (!newFolder.exists()) {
-            Log.e("Folder", "creating...");
-            if (newFolder.mkdirs()) {
-                Log.e("Folder", "Success Creating");
-            }
-            else{
-                Log.e("Folder", "error Creating");
-            }
-        }
+                for (i = 0; i < this.results.size(); i++) {
+                    Log.e("Writting", "results[" + i + "] =" + this.results.get(i).toString());
 
-        //checking Folder in order to find if we have the same datetime file if founded, create a new FileWritter
-        output = checkFolderFiles(newFolder, filename);
+                    output.write(this.results.get(i).toString());
+                    results.remove(i);
+                }
 
-        if (output == null) {
-            //file not exists, so we create it and create a new FileWritter
-            File file = new File(newFolder, filename);
-            output = NewFileCreation(file);
-        }
-
-        try {
-            for (i = 0; i < this.results.size(); i++) {
-                Log.e("Writting", "results["+i+"] ="+ this.results.get(i).toString());
-                output.write(this.results.get(i).toString());
-                results.remove(i);
-            }
-            if (output != null) {
                 output.flush();
                 output.close();
+
+                success = true;
             }
         }
-        catch (Exception IOException) {
-            Log.e("Write in file", "Exception: " + IOException.getMessage());
-        }
-    }
 
-
-    public ArrayList<AccelData> concatenate(ArrayList<AccelData> a, ArrayList<AccelData> b) {
-        int aLen = a.size();
-        int bLen = b.size();
-        ArrayList<AccelData> c = new ArrayList<>(aLen+bLen);
-
-        if(!a.isEmpty() && b.isEmpty()){
-            Log.e("concatenating", "c =  b");
-            for(AccelData r : a){
-                c.add(r);
-            }
-            a.clear();
-        }
-        else if(a.isEmpty() && !b.isEmpty()){
-            Log.e("concatenate", "concatenating c =  a");
-            for(AccelData r : b){
-                c.add(r);
-            }
-            b.clear();
-        }
-        else if(!a.isEmpty() && !b.isEmpty()){
-            Log.e("concatenate", "concatenating a = " + aLen + "+ b =" + bLen);
-
-            for(AccelData r1 : a){
-                c.add(r1);
-            }
-            for(AccelData r2 : b){
-                c.add(r2);
-            }
-            a.clear();
-            b.clear();
-
-            Log.e("concatenate", "concatenated");
-        }
-        else{
-            Log.e("concatenate", "concatenated c = null");
-        }
-
-        return c;
+        return success;
     }
 }
