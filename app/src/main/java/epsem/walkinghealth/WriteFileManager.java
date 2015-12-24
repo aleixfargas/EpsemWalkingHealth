@@ -23,7 +23,7 @@ public class WriteFileManager {
 
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
 
-    
+
     /**
      * Initializes a task that will be executed after every minute.
      *
@@ -35,17 +35,18 @@ public class WriteFileManager {
 
         Runnable task = new Runnable() {
             public void run() {
-                Log.d("WriteFileManager","auto-executing Writter task");
+                Log.e("WriteFileManager","auto-executing Writter task");
                 results = concatenate(results, graphActivity.getResults());
                 graphActivity.clearResults();
                 if (results != null) {
-                    Log.e("WriteFile", "results size = " + results.size());
+                    Log.e("WriteFileManager", "results size = " + results.size());
                     try {
                         writeFile();
                     } catch (IOException e) {
                         Log.e("WriteFileManager","Failed to write in the File");
                     }
                 }
+                Log.e("WriteFileManager","end Writter task");
             }
         };
         worker.scheduleAtFixedRate(task, 30, 30, TimeUnit.SECONDS);
@@ -65,11 +66,11 @@ public class WriteFileManager {
      */
     public ArrayList<AccelData> concatenate(ArrayList<AccelData> target, ArrayList<AccelData> src) {
         if(!src.isEmpty()){
-            Log.e("concatenate", "concatenating");
+            Log.e("WriteFileManager", "concat target = "+target+" + src = "+src);
             for(AccelData r : src){
                 target.add(r);
+                Log.e("WriteFileManager", "concatenated " + r.toString());
             }
-            Log.e("concatenate", "concatenated");
         }
 
         return target;
@@ -143,7 +144,7 @@ public class WriteFileManager {
     /**
      * Method to write the results into the resultsFile.
      * It clears each result of the ArrayList<AccelData> results immediatly after writting it.
-     *
+     * It has a maximum of 8190 writes for each call.
      *
      * @return Boolean
      *      True on success, otherwise false.
@@ -170,11 +171,12 @@ public class WriteFileManager {
                 fw = new FileWriter(resultsFile);
                 output = new BufferedWriter(fw);
 
-                for (i = 0; i < this.results.size(); i++) {
-                    Log.e("Writting", "results[" + i + "] =" + this.results.get(i).toString());
+                Log.e("WriteFileManager", "Writting " + this.results.size() + " results");
+                for (i = 0; ((i < this.results.size()) && (i < 8190)); i++) {
+                    Log.e("WriteFileManager", "Writed results["+i+"] =" + this.results.get(i).toString());
 
                     output.write(this.results.get(i).toString());
-                    results.remove(i);
+                    this.results.remove(i);
                 }
 
                 output.flush();

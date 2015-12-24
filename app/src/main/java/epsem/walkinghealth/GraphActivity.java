@@ -128,9 +128,9 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
 
 
     /**
-     * Method called from WriteFileManager, in order to write in the file every minute
+     * Method called from WriteFileManager, to concat the results with his own results ArrayList
      *
-     * @return ArrayList<AccelData> contains all the characteristics received
+     * @return ArrayList<AccelData> contains all the characteristics received at the moment
      */
     public ArrayList<AccelData> getResults(){
         Log.e("WriteFileManager","Getting GraphA results");
