@@ -25,7 +25,7 @@ public class WriteFileManager {
 
 
     /**
-     * Initializes a task that will be executed after every minute.
+     * Initializes a task that will be executed periodically.
      *
      * @param graphActivity
      *      Gets the GraphActivity to read the results received from the BluetoothGattCallback
@@ -54,7 +54,7 @@ public class WriteFileManager {
 
 
     /**
-     *  Concatenates two arrays
+     *  Concat two arrays
      *
      * @param target
      *      ArrayList<AccelData> type list that we want to fill with the src contents
@@ -163,7 +163,7 @@ public class WriteFileManager {
         FileWriter fw;
 
         Boolean success = false;
-        int i = 0;
+        int i = 0, deleted=0;
 
         if(createFolder(resultsFolder)) {
             if (createFile(resultsFile)) {
@@ -171,13 +171,15 @@ public class WriteFileManager {
                 fw = new FileWriter(resultsFile);
                 output = new BufferedWriter(fw);
 
-                Log.e("WriteFileManager", "Writting " + this.results.size() + " results");
+                Log.e("WriteFileManager", "Writing " + this.results.size() + " results");
                 for (i = 0; ((i < this.results.size()) && (i < 8190)); i++) {
-                    Log.e("WriteFileManager", "Writed results["+i+"] =" + this.results.get(i).toString());
+                    Log.e("WriteFileManager", "Wrote results["+i+"] =" + this.results.get(i).toString());
 
                     output.write(this.results.get(i).toString());
                     this.results.remove(i);
+                    deleted++;
                 }
+                Log.e("WriteFileManager", "Wrote " + deleted + " results");
 
                 output.flush();
                 output.close();
