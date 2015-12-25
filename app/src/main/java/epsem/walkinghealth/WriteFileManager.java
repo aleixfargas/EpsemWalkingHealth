@@ -163,7 +163,7 @@ public class WriteFileManager {
         FileWriter fw;
 
         Boolean success = false;
-        int i = 0, deleted=0;
+        int i = 0, wrote = 0, todelete;
 
         if(createFolder(resultsFolder)) {
             if (createFile(resultsFile)) {
@@ -172,24 +172,22 @@ public class WriteFileManager {
                 output = new BufferedWriter(fw);
 
                 Log.e("WriteFileManager", "Writing " + this.results.size() + " results");
-                /*
                 for (i = 0; ((i < this.results.size()) || (i < 8190)); i++) {
-                    Log.e("WriteFileManager", "Wrote results["+i+"] =" + this.results.get(i).toString());
-
+                    Log.e("WriteFileManager", "Wrote results[" + i + "] =" + this.results.get(i).toString());
                     output.write(this.results.get(i).toString());
-                    this.results.remove(i);
-                    deleted++;
+                    wrote++;
                 }
-                */
-                for(AccelData r : this.results) {
-                    Log.e("WriteFileManager", "Wrote results["+i+"] =" + r.toString());
 
-                    output.write(r.toString());
-                    this.results.remove(i);
-                    deleted++;
+                todelete = wrote;
+
+                Log.e("WriteFileManager", "Wrote " + wrote + "results");
+                while(todelete > 0){
+                    Log.e("WriteFileManager", "Deleting results["+i+"] =" + this.results.get(i).toString());
+                    this.results.remove(todelete);
+                    todelete--;
                 }
-                Log.e("WriteFileManager", "Wrote " + deleted + " results");
 
+                Log.e("WriteFileManager", "Deleted " + (wrote - todelete) + "results");
                 output.flush();
                 output.close();
 
