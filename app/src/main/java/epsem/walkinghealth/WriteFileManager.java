@@ -41,7 +41,9 @@ public class WriteFileManager {
                 if (results != null) {
                     Log.e("WriteFileManager", "results size = " + results.size());
                     try {
-                        writeFile();
+                        if(!writeFile()){
+                            Log.e("WriteFileManager","Something wrong happened");
+                        }
                     } catch (IOException e) {
                         Log.e("WriteFileManager","Failed to write in the File");
                     }
@@ -178,6 +180,9 @@ public class WriteFileManager {
                     wrote++;
                 }
 
+                output.flush();
+                output.close();
+
                 todelete = wrote;
 
                 Log.e("WriteFileManager", "Wrote " + wrote + "results");
@@ -188,10 +193,10 @@ public class WriteFileManager {
                 }
 
                 Log.e("WriteFileManager", "Deleted " + (wrote - todelete) + "results");
-                output.flush();
-                output.close();
 
-                success = true;
+                if(todelete == 0) {
+                    success = true;
+                }
             }
         }
 
