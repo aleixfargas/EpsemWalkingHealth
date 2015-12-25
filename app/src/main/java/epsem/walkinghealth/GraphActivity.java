@@ -22,9 +22,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
+import android.os.FileObserver;
 
-public class GraphActivity extends Activity implements BLEConnectionListener{
+public class GraphActivity extends Activity implements BLEConnectionListener {
     public Button btnClearGraph;
     public GraphChart graph = null;
     private MainActivity main_activity = null;
@@ -32,6 +32,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener{
 
     public ArrayList<AccelData> results = null;
     //public GraphActivity graph_activity = null;
+    public static FileObserver observer;
 
 
     @Override
@@ -42,9 +43,24 @@ public class GraphActivity extends Activity implements BLEConnectionListener{
         createGraph();
 
         createClearGraphButton();
-        //Fer event onWifiDetected per pujar fitxer
-        upload();
     }
+
+    @Override
+    public void onStart(Intent intent, int startid) { //no se ben bé què fa el onStart, potser el onEvent hauria d'anar al onResume
+        File curFileSize = filename.length();
+        Log.e("onStart", "curFileSize:  " + curFileSize);
+        final String path = "/storage/sdcard0/WalkingHealth/";
+        FileObserver observer = new FileObserver(path/*,MODIFY+CLOSE_WRITE*/) {
+            @Override
+            public void onEvent(int event, String file) {
+                //checking size
+                if (curFileSize > 10000) {
+                    upload();
+                }
+            }
+        };
+        observer.startWatching();
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -93,7 +109,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener{
 
     @Override
     public void onDataReceived(String MACaddr, double x, double y, double z){
-        Log.e("GraphActivity","Data received from " + MACaddr);
+        Log.e("GraphActivity", "Data received from " + MACaddr);
 
         graph.toString();
         graph.add(System.currentTimeMillis(), x, y, z);
@@ -185,7 +201,11 @@ public class GraphActivity extends Activity implements BLEConnectionListener{
         //return the current date String formatted
         String now = getStringDateTime();
         //Define here the name of the file
-        String filename = now + "_data.txt";
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        String filename = now +"-"+ hour +"-"+ minute + "_data.txt";
 
         File newFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
         Log.e("Folder", "new Folder: " + newFolder);
