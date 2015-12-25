@@ -52,12 +52,12 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
            //HTTP Post - Connexió persistent
            StartConnection();
 
-           Calendar calendar = Calendar.getInstance();
-           int hour = calendar.get(Calendar.HOUR_OF_DAY);
-           int minute = calendar.get(Calendar.MINUTE);
-
-           String now = getStringDateTime();
-           String filename = now +"-"+ hour +"-"+ minute + "_data.txt";// Falta provar i canviar el format del writefile
+//           Calendar calendar = Calendar.getInstance();
+//           int hour = calendar.get(Calendar.HOUR_OF_DAY);
+//           int minute = calendar.get(Calendar.MINUTE);
+//
+//           String now = getStringDateTime();
+//           String filename = now +"-"+ hour +"-"+ minute + "_data.txt";// Falta provar i canviar el format del writefile
            pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/"+filename);
            Log.e("app","fitxer: "+pathToOurFile);
            fileInputStream = new FileInputStream(pathToOurFile);
