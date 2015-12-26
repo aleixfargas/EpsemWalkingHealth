@@ -191,10 +191,11 @@ public class WriteFileManager {
                 todelete = wrote;
 
                 Log.e("WriteFileManager", "Wrote " + wrote + "results");
+                Log.e("WriteFileManager", "Deleting " + todelete + "results");
                 while(todelete > 0){
-                    Log.e("WriteFileManager", "Deleting results["+i+"] =" + this.results.get(i).toString());
-                    this.results.remove(todelete-1);
+                    Log.e("WriteFileManager", "Deleting results[" + todelete + "] =" + this.results.get(todelete).toString());
                     todelete--;
+                    this.results.remove(todelete);
                 }
 
                 Log.e("WriteFileManager", "Deleted " + (wrote - todelete) + "results");
