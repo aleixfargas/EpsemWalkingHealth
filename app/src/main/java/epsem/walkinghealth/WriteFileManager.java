@@ -180,8 +180,11 @@ public class WriteFileManager {
                     wrote++;
                 }
 
+                Log.e("WriteFileManager", "flushing");
                 output.flush();
+                Log.e("WriteFileManager", "closing");
                 output.close();
+                Log.e("WriteFileManager", "start deleting");
 
                 todelete = wrote;
 
