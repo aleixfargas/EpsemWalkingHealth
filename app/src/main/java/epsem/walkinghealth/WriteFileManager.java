@@ -174,10 +174,12 @@ public class WriteFileManager {
                 output = new BufferedWriter(fw);
 
                 Log.e("WriteFileManager", "Writing " + this.results.size() + " results");
-                for (i = 0; ((i < this.results.size()) || (i < 8190)); i++) {
+                for (i = 0; ((i < this.results.size()) /*|| (i < 8190)*/); i++) {
                     Log.e("WriteFileManager", "Wrote results[" + i + "] =" + this.results.get(i).toString());
-                    output.write(this.results.get(i).toString());
-                    wrote++;
+                    if (this.results.get(i).toString() != null) {
+                        output.write(this.results.get(i).toString());
+                        wrote++;
+                    }
                 }
 
                 Log.e("WriteFileManager", "flushing");
