@@ -164,8 +164,10 @@ public class WriteFileManager {
         BufferedWriter output;
         FileWriter fw;
 
+        int i = 0;
+        int wrote = 0;
+        int todelete = 0;
         Boolean success = false;
-        int i = 0, wrote = 0, todelete = 0, x=0;
 
         if(createFolder(resultsFolder)) {
             if (createFile(resultsFile)) {
@@ -182,19 +184,18 @@ public class WriteFileManager {
                     }
                 }
 
-                Log.e("WriteFileManager", "flushing");
+                Log.e("WriteFileManager", "Wrote " + wrote + " results");
+
                 output.flush();
-                Log.e("WriteFileManager", "closing");
                 output.close();
-                Log.e("WriteFileManager", "start deleting");
 
                 todelete = wrote;
 
-                Log.e("WriteFileManager", "Wrote " + wrote + "results");
-                Log.e("WriteFileManager", "Deleting " + todelete + "results");
-                for(x=todelete; x > 0; --x){
-                    Log.e("WriteFileManager", "Deleting results[" + x + "] =" + this.results.get(x).toString());
-                    this.results.remove(x);
+                Log.e("WriteFileManager", "Deleting " + todelete + " results");
+                while(todelete > 0){
+                    Log.e("WriteFileManager", "Deleting results[" + todelete + "] =" + this.results.get(todelete).toString());
+                    todelete--;
+                    this.results.remove(todelete);
                 }
 
                 Log.e("WriteFileManager", "Deleted " + (wrote - todelete) + "results");
