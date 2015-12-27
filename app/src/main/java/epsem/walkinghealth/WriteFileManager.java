@@ -22,6 +22,7 @@ public class WriteFileManager {
     public ArrayList<AccelData> results = new ArrayList<>();;
 
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
+    public static final long MAX_LENGTH = 8000000;
 
 
     /**
@@ -89,11 +90,71 @@ public class WriteFileManager {
         // (1) get today's date
         Date today = Calendar.getInstance().getTime();
 
-        // (2) create a date "formatter" (the date format we want)
+        // (2) create a date "formatter"
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
         // (3) create a new String using the date format we want
         return formatter.format(today);
+    }
+
+
+    /**
+     * Method to get the current Hour in a String format of two digits
+     *
+     * @return
+     */
+    private String getStringCurrentHour() {
+        // (1) get today's date
+        Date date = new Date();
+
+        // (2) create a date "formatter"
+        SimpleDateFormat formatter = new SimpleDateFormat("hh");
+        Log.e("WriteFileManager","Current hour = "+formatter.format(date));
+        // (3) create a new String using the date format we want
+        return formatter.format(date);
+    }
+
+
+    /**
+     * Method to get the file Number
+     *
+     * @param line
+     * @param folder
+     * @return int
+     *      Number identifier of the current results file
+     */
+    private int getFileNumber(String line, File folder) {
+        int n = 0;
+
+        File existentFile = null;
+        String nextFileName = line+n;
+
+        for (File file : folder.listFiles()){
+            if(file.isFile()){
+                if((file.getName()).contains(nextFileName)){
+                    nextFileName = line+n;
+                    existentFile = file;
+                    n++;
+                }
+            }
+        }
+
+        if(isFull(existentFile)){
+            n++;
+        }
+
+        return n;
+    }
+
+    /**
+     * Method to know if the file could not be bigger because, if it does, it could not be send to the server
+     *
+     * @param file
+     *      File to know it size
+     * @return Boolean
+     */
+    private Boolean isFull(File file){
+        return ((file.length() > MAX_LENGTH) || (file.length() == MAX_LENGTH));
     }
 
 
@@ -147,6 +208,8 @@ public class WriteFileManager {
      * Method to write the results into the resultsFile.
      * It clears each result of the ArrayList<AccelData> results immediatly after writting it.
      * It has a maximum of 8190 writes for each call.
+     * If file reaches the MAX_LENGTH value, a new file will be created.
+     * FileName format: 'ddMMAA_hh_X.txt'. 'X' value is the number of the file depending on the order it has been created.
      *
      * @return Boolean
      *      True on success, otherwise false.
@@ -155,12 +218,15 @@ public class WriteFileManager {
      *      When failed to create, open or write a file or directory
      */
     public Boolean writeFile() throws IOException {
-        String now = getStringDateTime();
-        String filename = now + "_data";
+        File resultsFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
+
+        //Implementació del punt 2 del document: 'FunctionalDesign_WriteFileManager'
+        String fileline = getStringDateTime()+"_"+getStringCurrentHour()+"_";
+        int filenum = getFileNumber(fileline, resultsFolder);
         String fileExtension = ".txt";
 
-        File resultsFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
-        File resultsFile = new File(resultsFolder, filename+fileExtension);
+        File resultsFile = new File(resultsFolder, fileline + filenum + fileExtension);
+
         BufferedWriter output;
         FileWriter fw;
 
@@ -181,6 +247,17 @@ public class WriteFileManager {
                     if (this.results.get(i).toString() != null) {
                         output.write(this.results.get(i).toString());
                         wrote++;
+
+                        if(isFull(resultsFile)) {
+                            output.flush();
+                            output.close();
+
+                            filenum++;
+                            resultsFile = new File(resultsFolder, fileline + filenum + fileExtension);
+                            createFile(resultsFile);
+                            fw = new FileWriter(resultsFile);
+                            output = new BufferedWriter(fw);
+                        }
                     }
                 }
 
