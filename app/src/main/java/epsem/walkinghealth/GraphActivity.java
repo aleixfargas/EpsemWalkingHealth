@@ -86,8 +86,8 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         Double y = result.y;
         Double z = result.z;
 
-        Log.e("GraphActivity", "Data received from " + MACaddr);
         if(!locked) {
+            utils.log("GraphActivity","writting "+result.toString());
             this.results.add(result);
         }
 
@@ -136,8 +136,8 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
      */
     public ArrayList<AccelData> getResults(){
         ArrayList<AccelData> results_copy = null;
+
         this.locked = true;
-        Log.e("WriteFileManager", "Getting GraphA results");
         results_copy = new ArrayList<>(this.results);
         this.locked = false;
 
@@ -149,7 +149,6 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
      * Clear all the data received from the moment
      */
     public void clearResults(){
-        Log.e("WriteFileManager", "clearing GraphA results");
         this.locked = true;
         this.results.clear();
         this.locked = false;

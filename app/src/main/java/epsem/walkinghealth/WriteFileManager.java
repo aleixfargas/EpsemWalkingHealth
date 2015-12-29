@@ -36,20 +36,20 @@ public class WriteFileManager {
 
         Runnable task = new Runnable() {
             public void run() {
-                Log.e("WriteFileManager", "auto-executing Writter task");
+                utils.log("WriteFileManager", "auto-executing Writter task");
                 results = concat(results, graphActivity.getResults());
 
                 if (results != null) {
-                    Log.e("WriteFileManager", "results size = " + results.size());
+                    utils.log("WriteFileManager", "results size = " + results.size());
                     try {
                         if(!writeFile()){
-                            Log.e("WriteFileManager","Something wrong happened");
+                            Log.e("WriteFileManager", "Something wrong happened");
                         }
                     } catch (IOException e) {
                         Log.e("WriteFileManager","Failed to write in the File");
                     }
                 }
-                Log.e("WriteFileManager","end Writter task");
+                utils.log("WriteFileManager", "end Writter task");
             }
         };
         worker.scheduleAtFixedRate(task, 30, 30, TimeUnit.SECONDS);
@@ -71,10 +71,8 @@ public class WriteFileManager {
         graphActivity.clearResults();
 
         if(!src.isEmpty()){
-            Log.e("WriteFileManager", "concat target = "+target+" + src_clone = "+src);
             for(AccelData r : src){
                 target.add(r);
-                Log.e("WriteFileManager", "concatenated " + r.toString());
             }
         }
 
@@ -111,7 +109,7 @@ public class WriteFileManager {
 
         // (2) create a date "formatter"
         SimpleDateFormat formatter = new SimpleDateFormat("hh");
-        Log.e("WriteFileManager","Current hour = "+formatter.format(date));
+        utils.log("WriteFileManager", "Current hour = " + formatter.format(date));
         // (3) create a new String using the date format we want
         return formatter.format(date);
     }
@@ -163,12 +161,11 @@ public class WriteFileManager {
     private Boolean isFull(File file){
         Boolean r = false;
         if(file != null) {
-            Log.e("","");
             r = ((file.length() > MAX_LENGTH) || (file.length() == MAX_LENGTH));
         }
 
         if(r){
-            Log.e("WriteFileManager","isFull!");
+            utils.log("WriteFileManager", "isFull!");
         }
 
         return r;
@@ -190,7 +187,7 @@ public class WriteFileManager {
         Boolean r = true;
 
         if (!file.exists()) {
-            Log.e("WriteFileManager", "creating new File: " + file);
+            utils.log("WriteFileManager", "creating new File: " + file);
             if(!file.createNewFile()){
                 r = false;
             }
@@ -211,7 +208,7 @@ public class WriteFileManager {
     private Boolean createFolder(File folder){
         Boolean r = true;
         if (!folder.exists()) {
-            Log.e("WriteFileManager", "creating new Folder: " + folder);
+            utils.log("WriteFileManager", "creating new Folder: " + folder);
             if (!folder.mkdirs()) {
                 r = false;
             }
@@ -238,9 +235,7 @@ public class WriteFileManager {
         File resultsFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
 
         //Implementació del punt 2 del document: 'FunctionalDesign_WriteFileManager'
-        Log.e("WriteFileManager", "creating fileline");
         String fileline = getStringDateTime()+"_"+getStringCurrentHour()+"_";
-        Log.e("WriteFileManager", "creating filenum");
         int filenum = getFileNumber(fileline, resultsFolder);
         String fileExtension = ".txt";
 
@@ -260,9 +255,8 @@ public class WriteFileManager {
                 fw = new FileWriter(resultsFile, true);
                 output = new BufferedWriter(fw);
 
-                Log.e("WriteFileManager", "Writing " + this.results.size() + " results");
+                utils.log("WriteFileManager", "Writing " + this.results.size() + " results");
                 for (i = 0; ((i < this.results.size()) /*|| (i < 8190)*/); i++) {
-                    Log.e("WriteFileManager", "Wrote results[" + i + "] =" + this.results.get(i).toString());
                     if (this.results.get(i).toString() != null) {
                         output.write(this.results.get(i).toString());
                         wrote++;
@@ -280,21 +274,20 @@ public class WriteFileManager {
                     }
                 }
 
-                Log.e("WriteFileManager", "Wrote " + wrote + " results");
+                utils.log("WriteFileManager", "Wrote " + wrote + " results");
 
                 output.flush();
                 output.close();
 
                 todelete = wrote;
 
-                Log.e("WriteFileManager", "Deleting " + todelete + " results");
+                utils.log("WriteFileManager", "Deleting " + todelete + " results");
                 while(todelete > 0){
                     todelete--;
-                    Log.e("WriteFileManager", "Deleting results[" + todelete + "] =" + this.results.get(todelete).toString());
                     this.results.remove(todelete);
                 }
 
-                Log.e("WriteFileManager", "Deleted " + (wrote - todelete) + "results");
+                utils.log("WriteFileManager", "Deleted " + (wrote - todelete) + "results");
 
                 if(todelete == 0) {
                     success = true;
