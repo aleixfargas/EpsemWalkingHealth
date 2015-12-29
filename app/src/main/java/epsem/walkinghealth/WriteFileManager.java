@@ -36,9 +36,9 @@ public class WriteFileManager {
 
         Runnable task = new Runnable() {
             public void run() {
-                Log.e("WriteFileManager","auto-executing Writter task");
-                results = concatenate(results, graphActivity.getResults());
-                graphActivity.clearResults();
+                Log.e("WriteFileManager", "auto-executing Writter task");
+                results = concat(results, graphActivity.getResults());
+
                 if (results != null) {
                     Log.e("WriteFileManager", "results size = " + results.size());
                     try {
@@ -57,7 +57,7 @@ public class WriteFileManager {
 
 
     /**
-     *  Concat two arrays
+     *  Concat two arrays, deleting the src Array
      *
      * @param target
      *      ArrayList<AccelData> type list that we want to fill with the src contents
@@ -67,9 +67,11 @@ public class WriteFileManager {
      * @return ArrayList<AccelData>
      *      Containing target+src data concatenated
      */
-    public ArrayList<AccelData> concatenate(ArrayList<AccelData> target, ArrayList<AccelData> src) {
+    public ArrayList<AccelData> concat(ArrayList<AccelData> target, ArrayList<AccelData> src) {
+        graphActivity.clearResults();
+
         if(!src.isEmpty()){
-            Log.e("WriteFileManager", "concat target = "+target+" + src = "+src);
+            Log.e("WriteFileManager", "concat target = "+target+" + src_clone = "+src);
             for(AccelData r : src){
                 target.add(r);
                 Log.e("WriteFileManager", "concatenated " + r.toString());
@@ -124,23 +126,28 @@ public class WriteFileManager {
      *      Number identifier of the current results file
      */
     private int getFileNumber(String line, File folder) {
-        int n = 0;
+        int n = -1;
 
         File existentFile = null;
         String nextFileName = line+n;
-
-        for (File file : folder.listFiles()){
-            if(file.isFile()){
-                if((file.getName()).contains(nextFileName)){
-                    nextFileName = line+n;
-                    existentFile = file;
-                    n++;
+        if(folder.exists()) {
+            for (File file : folder.listFiles()) {
+                if (file.isFile()) {
+                    if ((file.getName()).contains(nextFileName)) {
+                        nextFileName = line + n;
+                        existentFile = file;
+                        n++;
+                    }
                 }
             }
         }
 
         if(isFull(existentFile)){
             n++;
+        }
+
+        if(n == -1){
+            n=0;
         }
 
         return n;
@@ -154,7 +161,17 @@ public class WriteFileManager {
      * @return Boolean
      */
     private Boolean isFull(File file){
-        return ((file.length() > MAX_LENGTH) || (file.length() == MAX_LENGTH));
+        Boolean r = false;
+        if(file != null) {
+            Log.e("","");
+            r = ((file.length() > MAX_LENGTH) || (file.length() == MAX_LENGTH));
+        }
+
+        if(r){
+            Log.e("WriteFileManager","isFull!");
+        }
+
+        return r;
     }
 
 
@@ -221,7 +238,9 @@ public class WriteFileManager {
         File resultsFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
 
         //Implementació del punt 2 del document: 'FunctionalDesign_WriteFileManager'
+        Log.e("WriteFileManager", "creating fileline");
         String fileline = getStringDateTime()+"_"+getStringCurrentHour()+"_";
+        Log.e("WriteFileManager", "creating filenum");
         int filenum = getFileNumber(fileline, resultsFolder);
         String fileExtension = ".txt";
 
@@ -238,7 +257,7 @@ public class WriteFileManager {
         if(createFolder(resultsFolder)) {
             if (createFile(resultsFile)) {
                 //create a BufferedWritter to write in the file
-                fw = new FileWriter(resultsFile);
+                fw = new FileWriter(resultsFile, true);
                 output = new BufferedWriter(fw);
 
                 Log.e("WriteFileManager", "Writing " + this.results.size() + " results");
@@ -286,3 +305,4 @@ public class WriteFileManager {
         return success;
     }
 }
+
