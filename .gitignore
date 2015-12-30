@@ -4,6 +4,7 @@
 *.txt
 *.apk
 *-no.*
+*.php
 
 #*#
 
@@ -17,6 +18,7 @@ handle_data.php
 
 .gradle
 .DS_Store
+.idea/
 
 captures
 

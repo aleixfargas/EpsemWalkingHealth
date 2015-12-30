@@ -52,7 +52,8 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
            //HTTP Post - Connexió persistent
            StartConnection();
 
-           pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/");//potser peta
+           //Lectura del fitxer
+           pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/2015-12-26_data.txt");
            Log.e("app","fitxer: "+pathToOurFile);
            fileInputStream = new FileInputStream(pathToOurFile);
            readFile();

@@ -51,7 +51,7 @@ public class BLEConnection {
      */
     private BLEConnection(){}
 
-    public void enableBluetoothAdapter(Object systemService, Activity activity){}
+
     /**
      * Called in order to get the unique Instance of the BLEConnection class
      *
@@ -93,15 +93,16 @@ public class BLEConnection {
     }
 
 
-    public void forwardDataReceived(String MACaddr, double x, double y, double z) {
+    public void forwardDataReceived(String MACaddr, AccelData result) {
         for (BLEConnectionListener listener: listeners) {
-            listener.onDataReceived(MACaddr, x, y, z);
+            listener.onDataReceived(MACaddr, result);
         }
     }
 
 
     /**
      * Method to create a new bluetooth callback, we can create as callbacks as devices we have.
+     *
      *  @param id
      * @param MACaddr
      * @param appcontext
@@ -121,14 +122,10 @@ public class BLEConnection {
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 Log.e("BLE", "newState = " + newState);
                 if(newState == BluetoothProfile.STATE_CONNECTED){
-                    // S'ha establert la connexió amb el perifèric
+                    //S'ha establert la connexió amb el perifèric
                     gatt.discoverServices();
                 }
                 forwardStatusUpdate(MACaddrArray.get(id), newState);
-                /**
-                 * //deprecated, not necessary do a thread:
-                 * connectThread.run();
-                 */
             }
 
             @Override
@@ -145,13 +142,10 @@ public class BLEConnection {
                 Log.e("onCharChanged", "dades radino: [" + (double) (data[0]) + ", " + (double) (data[1])+ ", " + (double) (data[2]) + "]");//toDouble(data));
 
                 // Processament de dades
-                AccelData AD = new AccelData(1, System.currentTimeMillis(), data[0], data[1], data[2]);
+                AccelData AD = new AccelData(id, System.currentTimeMillis(), data[0], data[1], data[2]);
 
-                //Emmagatzematge de dades
-                results.add(AD);
-
-                //Visualització dades
-                forwardDataReceived(MACaddrArray.get(id), (double)(data[0]), (double)(data[1]), (double)(data[2]));
+                //Visualització dades + Emmagatzematge de dades
+                forwardDataReceived(MACaddrArray.get(id), AD);
             }
         };
         Log.e("callback","callback #"+id+" created");
@@ -177,18 +171,14 @@ public class BLEConnection {
         final UUID TX_CHAR = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
         final UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
-        Log.e("enable TX", "0");
         BluetoothGattService UartService = this.GattArray.get(id).getService(UART_SERVICE);
         if (UartService != null) {
-            Log.e("enable TX", "1");
             BluetoothGattCharacteristic TxChar = UartService.getCharacteristic(TX_CHAR);
             if (TxChar != null){
-                Log.e("enable TX", "2");
                 this.GattArray.get(id).setCharacteristicNotification(TxChar, true);
                 BluetoothGattDescriptor descriptor = TxChar.getDescriptor(CCCD);
                 descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                 this.GattArray.get(id).writeDescriptor(descriptor);
-                Log.e("enable TX", "descriptorUuid = " + descriptor.getUuid());
             }
         }
     }
@@ -208,12 +198,12 @@ public class BLEConnection {
         return s;
     }
 */
+
     /**
-     * Deprecated
-     * Method to know if we are connected
+     * Method to know if Bluetooth is enabled, if not a popup will be showed
      *
-     * @return boolean
-     * if the device is connected will be true otherwise false
+     * @param id
+     * @param activity
      */
     public void BLEconnect(Integer id, Activity activity) {
         BluetoothManager btmanager = (BluetoothManager) this.SystemService;
@@ -228,7 +218,8 @@ public class BLEConnection {
 
     /**
      * Method to disconnect from the bluetooth device
-     * @return boolean
+     *
+     * @return boolean  True if successful, false if already disconnected
      */
     public boolean BLEdisconnect(Integer id){
         if (this.AdapterArray.get(id) != null && this.GattArray.get(id) != null) {
@@ -243,23 +234,5 @@ public class BLEConnection {
         else{
             return false;
         }
-    }
-
-
-    /**
-     * Method called from GraphActivity, in order to write in the file
-     *
-     * @return ArrayList<AccelData> contains all the characteristics received
-     */
-    public ArrayList<AccelData> getResults(){
-        return this.results;
-    }
-
-
-    /**
-     * Clear all the data received from the moment
-     */
-    public void clearResults(){
-        this.results.clear();
     }
 }

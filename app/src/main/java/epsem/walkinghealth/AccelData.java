@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 public class AccelData {
     private long timestamp;
-    private double x;
-    private double y;
-    private double z;
+    public double x;
+    public double y;
+    public double z;
+    public int sensor;
     private int usuari;
-    private int sensor;
 
     public AccelData(int sensor, long timestamp, double x, double y, double z) {
         this.timestamp = timestamp;

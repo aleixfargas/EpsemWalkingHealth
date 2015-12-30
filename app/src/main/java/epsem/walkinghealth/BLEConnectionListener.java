@@ -1,5 +1,7 @@
 package epsem.walkinghealth;
 
+import java.util.ArrayList;
+
 public interface BLEConnectionListener {
     /**
      * String representation of the Integer status
@@ -24,10 +26,8 @@ public interface BLEConnectionListener {
      * BLEConnection will launch this method when we receive some data from the remote device.
      *
      * @param MACaddr MAC address of the remote device that send a characteristic
-     * @param x X-Axis of the received characteristic
-     * @param y Y-Axis of the received characteristic
-     * @param z Z-Axis of the received characteristic
+     * @param result contain a result received at the moment
     */
-    void onDataReceived(String MACaddr, double x, double y, double z);
+    void onDataReceived(String MACaddr, AccelData result);
 
 }
