@@ -43,6 +43,7 @@ public class MainActivity extends Activity implements BLEConnectionListener {
 
         main_activity = this;
         this.MACaddrArray.add(RADINO_RIGHT, "C3:EE:DD:D5:E8:CB");
+        this.MACaddrArray.add(RADINO_LEFT, "F8:08:97:8B:45:29");
 
         createConnectButton();
     }
@@ -166,7 +167,9 @@ public class MainActivity extends Activity implements BLEConnectionListener {
                     if (BleConnection != null) {
                         //connecting to bluetooth
                         BleConnection.createCallback(RADINO_RIGHT, MACaddrArray.get(RADINO_RIGHT), appcontext, getSystemService(Context.BLUETOOTH_SERVICE));
+                        BleConnection.createCallback(RADINO_LEFT, MACaddrArray.get(RADINO_LEFT), appcontext, getSystemService(Context.BLUETOOTH_SERVICE));
                         BleConnection.BLEconnect(RADINO_RIGHT, main_activity);
+                        BleConnection.BLEconnect(RADINO_LEFT, main_activity);
                         status = 1;
                     }
                     else {
