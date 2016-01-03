@@ -13,6 +13,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import android.os.FileObserver;
 
 public class GraphActivity extends Activity implements BLEConnectionListener {
@@ -23,7 +27,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
 
     public Boolean locked = false;
     private ArrayList<AccelData> results = new ArrayList<>();
-    public static FileObserver observer;
+    private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,23 +40,6 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         this.writeFileManager = new WriteFileManager(this);
         upload();
     }
-
-    @Override
-    public void onStart(Intent intent, int startid) { //no se ben bé què fa el onStart, potser el onEvent hauria d'anar al onResume
-        File curFileSize = filename.length();
-        Log.e("onStart", "curFileSize:  " + curFileSize);
-        final String path = "/storage/sdcard0/WalkingHealth/";
-        FileObserver observer = new FileObserver(path/*,MODIFY+CLOSE_WRITE*/) {
-            @Override
-            public void onEvent(int event, String file) {
-                //checking size
-                if (curFileSize > 10000) {
-                    upload();
-                }
-            }
-        };
-        observer.startWatching();
-    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -138,15 +125,18 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
 
 
     public void upload(){
-        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mWifi = connManager.getActiveNetworkInfo();
-
-        if (mWifi.isConnected()) {
-            ServerUploader upload = new ServerUploader();
-            upload.execute();
-        }
+        Runnable task = new Runnable() {
+            public void run() {
+                ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo mWifi = connManager.getActiveNetworkInfo();
+                if (mWifi.isConnected()) {
+                    ServerUploader upload = new ServerUploader();
+                    upload.execute();
+                }
+            }
+        };
+        worker.scheduleAtFixedRate(task, 1, 1, TimeUnit.MINUTES);
     }
-
 
     /**
      * Method called from WriteFileManager, to concat the results with his own results ArrayList

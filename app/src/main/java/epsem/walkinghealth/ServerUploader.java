@@ -35,7 +35,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
     public HttpURLConnection connection;
 
     public FileInputStream fileInputStream;
-    public File pathToOurFile;
+    public File folder, file;
 
     public DataOutputStream outputStream;
 
@@ -53,9 +53,12 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
            StartConnection();
 
            //Lectura del fitxer
-           pathToOurFile = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/2015-12-26_data.txt");
-           Log.e("app","fitxer: "+pathToOurFile);
-           fileInputStream = new FileInputStream(pathToOurFile);
+           folder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/");
+           Log.e("app","folder: "+folder);
+           String filename= getFilename();
+           Log.e("app","filename: "+filename);
+           file = new File(folder, filename);
+           fileInputStream = new FileInputStream(file);
            readFile();
 
            //Canal de sortida
@@ -68,7 +71,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
 
            //Elimina fitxer
            if (connection.getResponseCode() ==  200){
-               boolean deleted = pathToOurFile.delete();
+               boolean deleted = file.delete();
                Log.e("App", "fitxer pujat i eliminat: " + deleted);
            }
 
@@ -76,17 +79,6 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
            Log.e("Server", "IOException when connecting"+ioe);
        }
         return null;
-    }
-
-    private String getStringDateTime() {
-        // (1) get today's date
-        Date today = Calendar.getInstance().getTime();
-
-        // (2) create a date "formatter" (the date format we want)
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-
-        // (3) create a new String using the date format we want
-        return formatter.format(today);
     }
 
     private void StartConnection() throws IOException {
@@ -109,7 +101,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
 
     private void outputChannel() throws IOException{
         outputStream.writeBytes("--" + boundary + "\r\n");
-        outputStream.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\"" + pathToOurFile + "\"" + "\r\n");
+        outputStream.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\"" + file + "\"" + "\r\n");
         outputStream.writeBytes("\r\n");
     }
 
@@ -128,5 +120,15 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         fileInputStream.close();
         outputStream.flush();
         outputStream.close();
+    }
+
+    private String getFilename(){
+        /*String sql = "SELECT name FROM Files WHERE done = 1 AND uploaded=0";
+
+        SQLiteDatabase db = openDatabase("db",MODE_PRIVATE,null);
+        Cursor cursor = db.rawQuery("Select file from Files",null);
+        */
+        String fitxer = "2016-01-03_19_0.txt";
+        return fitxer;
     }
 }
