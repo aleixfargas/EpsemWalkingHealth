@@ -13,6 +13,11 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import android.os.FileObserver;
 
 public class GraphActivity extends Activity implements BLEConnectionListener {
     public Button btnClearGraph;
@@ -22,6 +27,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
 
     public Boolean locked = false;
     private ArrayList<AccelData> results = new ArrayList<>();
+    private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,16 +124,19 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
     }
 
 
-    public void upload() {
-        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mWifi = connManager.getActiveNetworkInfo();
-
-        if (mWifi.isConnected()) {
-            ServerUploader upload = new ServerUploader();
-            upload.execute();
-        }
+    public void upload(){
+        Runnable task = new Runnable() {
+            public void run() {
+                ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo mWifi = connManager.getActiveNetworkInfo();
+                if (mWifi.isConnected()) {
+                    ServerUploader upload = new ServerUploader();
+                    upload.execute();
+                }
+            }
+        };
+        worker.scheduleAtFixedRate(task, 1, 1, TimeUnit.MINUTES);
     }
-
 
     /**
      * Method called from WriteFileManager, to concat the results with his own results ArrayList

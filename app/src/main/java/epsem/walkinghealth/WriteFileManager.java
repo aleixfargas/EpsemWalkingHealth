@@ -108,7 +108,7 @@ public class WriteFileManager {
         Date date = new Date();
 
         // (2) create a date "formatter"
-        SimpleDateFormat formatter = new SimpleDateFormat("hh");
+        SimpleDateFormat formatter = new SimpleDateFormat("HH");
         utils.log("WriteFileManager", "Current hour = " + formatter.format(date));
         // (3) create a new String using the date format we want
         return formatter.format(date);
