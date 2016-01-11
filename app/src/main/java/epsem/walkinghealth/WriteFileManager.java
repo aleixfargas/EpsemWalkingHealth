@@ -20,6 +20,8 @@ import epsem.walkinghealth.models.WriteFileManager_model;
 public class WriteFileManager {
     public GraphActivity graphActivity = null;
     public ArrayList<AccelData> results = new ArrayList<>();;
+    public String oldHour = "";
+    public String oldDate = "";
     WriteFileManager_model WFMmodel = null;
 
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
@@ -63,7 +65,7 @@ public class WriteFileManager {
         this.graphActivity = graphActivity;
         utils.log("WriteFileManager","creating model");
         this.WFMmodel = new WriteFileManager_model(this.graphActivity);
-        utils.log("WriteFileManager","created model");
+        utils.log("WriteFileManager", "created model");
     }
 
 
@@ -180,7 +182,8 @@ public class WriteFileManager {
 
 
     /**
-     * Check the time, the hour, and the filenumber and build a name for the next file
+     * Check the time, the hour, and the filenumber and build a name for the next file.
+     * If the previous file is not full but the time has changed, then mark the previous file to done.
      *
      * @param resultsFolder The containing folder
      * @return
@@ -188,7 +191,25 @@ public class WriteFileManager {
      */
     private String createFileName(File resultsFolder, Date now) {
         String fileDate = utils.getStringDate(now);
+        if(!fileDate.equals(this.oldDate)){
+            int old_id = this.WFMmodel.existFile(this.oldDate+this.oldHour+getFileNumber(this.oldDate,this.oldHour)+".txt");
+            if(old_id != -1){
+                WFMmodel.done(old_id);
+            }
+            this.oldDate=fileDate;
+        }
+
         String fileHour = utils.getStringCurrentHour(now);
+        if(!fileHour.equals(this.oldHour)){
+            int old_id = this.WFMmodel.existFile(fileDate+fileHour+getFileNumber(fileDate,fileHour)+".txt");
+            if(old_id != -1){
+                if(WFMmodel.isDone(old_id) == 0) {
+                    WFMmodel.done(old_id);
+                }
+            }
+            this.oldHour = fileHour;
+        }
+
         int filenum = getFileNumber(fileDate, fileHour);
         String fileExtension = ".txt";
 
