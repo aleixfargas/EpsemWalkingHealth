@@ -25,8 +25,9 @@ public class WriteFileManager {
     WriteFileManager_model WFMmodel = null;
 
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
-    public static final long MAX_LENGTH = 8000000;
-    //public static final long MAX_LENGTH = 5000;
+
+    static final long MAX_LENGTH = 8000000;
+    static final String FILE_EXTENSION = ".txt";
 
 
     /**
@@ -182,38 +183,38 @@ public class WriteFileManager {
 
 
     /**
+     * Set the previous File as done
+     */
+    private void setOldFileDone(){
+        int old_id = this.WFMmodel.existFile(this.oldDate+this.oldHour+getFileNumber(this.oldDate,this.oldHour)+".txt");
+        if(old_id != -1){
+            WFMmodel.done(old_id);
+        }
+    }
+
+
+    /**
      * Check the time, the hour, and the filenumber and build a name for the next file.
      * If the previous file is not full but the time has changed, then mark the previous file to done.
      *
-     * @param resultsFolder The containing folder
      * @return
      *      A String containing the filename
      */
-    private String createFileName(File resultsFolder, Date now) {
+    private String createFileName(Date now) {
         String fileDate = utils.getStringDate(now);
         if(!fileDate.equals(this.oldDate)){
-            int old_id = this.WFMmodel.existFile(this.oldDate+this.oldHour+getFileNumber(this.oldDate,this.oldHour)+".txt");
-            if(old_id != -1){
-                WFMmodel.done(old_id);
-            }
-            this.oldDate=fileDate;
+            setOldFileDone();
+            this.oldDate = fileDate;
         }
 
         String fileHour = utils.getStringCurrentHour(now);
         if(!fileHour.equals(this.oldHour)){
-            int old_id = this.WFMmodel.existFile(fileDate+fileHour+getFileNumber(fileDate,fileHour)+".txt");
-            if(old_id != -1){
-                if(WFMmodel.isDone(old_id) == 0) {
-                    WFMmodel.done(old_id);
-                }
-            }
+            setOldFileDone();
             this.oldHour = fileHour;
         }
 
         int filenum = getFileNumber(fileDate, fileHour);
-        String fileExtension = ".txt";
-
-        String filename = fileDate+"_"+fileHour+"_"+filenum+fileExtension;
+        String filename = fileDate+"_"+fileHour+"_"+filenum+FILE_EXTENSION;
 
         return filename;
     }
@@ -248,6 +249,7 @@ public class WriteFileManager {
 
         return wrote;
     }
+
 
     private int deleteNow(int todelete){
         int deleted = 0;
@@ -288,12 +290,13 @@ public class WriteFileManager {
         return status;
     }
 
+    
     /**
      * Method to write the results into the resultsFile.
      * It clears each result of the ArrayList<AccelData> results immediatly after writting it.
      * It has a maximum of 8190 writes for each call.
      * If file reaches the MAX_LENGTH value, a new file will be created.
-     * FileName format: 'ddMMAA_hh_X.txt'. 'X' value is the number of the file depending on the order it has been created.
+     * FileName format: 'ddMMAA_HH_X.txt'. 'X' value is the number of the file depending on the order it has been created.
      *
      * @return Boolean
      *      True on success, otherwise false.
@@ -318,7 +321,7 @@ public class WriteFileManager {
             utils.log("WriteFileManager","getting name");
 
             //Implementació del punt 2 del document: 'FunctionalDesign_WriteFileManager'
-            filename = createFileName(resultsFolder, now);
+            filename = createFileName(now);
             resultsFile = new File(resultsFolder, filename);
             utils.log("WriteFileManager","name = "+filename);
 
