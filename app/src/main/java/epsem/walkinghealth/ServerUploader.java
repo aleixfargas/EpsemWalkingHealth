@@ -128,7 +128,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         SQLiteDatabase db = openDatabase("db",MODE_PRIVATE,null);
         Cursor cursor = db.rawQuery("Select file from Files",null);
         */
-        String fitxer = "2016-01-03_19_0.txt";
+        String fitxer = "2016-01-04_19_0.txt";
         return fitxer;
     }
 }
