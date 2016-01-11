@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import epsem.walkinghealth.common.utils;
@@ -21,7 +22,7 @@ public class WriteFileManager_model extends Base_model {
     private String having = null;
     private String orderBy = null;
 
-    
+
     public WriteFileManager_model(Context context) {
         super(context);
     }
@@ -158,6 +159,69 @@ public class WriteFileManager_model extends Base_model {
     }
 
 
+    /**
+     * Catch all the id of all the files that have not been uploaded yet
+     *
+     * @return
+     *      int type array with all the id of the files that had not been uploaded
+     */
+    public int getFilesToUpload(){
+        int file_id = -1;
+
+        this.table = "Files";
+        this.columns = new String[]{
+                "id"
+        };
+        this.selection = "done = ? AND uploaded = ?";
+        this.selectionArgs = new String[]{
+                "1",
+                "0"
+        };
+        this.groupBy = null;
+        this.having = null;
+        this.orderBy = null;
+
+        Cursor cursor = this.my_query(this.table,this.columns, this.selection, this.selectionArgs, this.groupBy, this.having, this.orderBy);
+
+        if(cursor.moveToNext()){
+            file_id = cursor.getInt(cursor.getColumnIndex("id"));
+        }
+        cursor.close();
+
+        return file_id;
+    }
+
+
+    /**
+     * Get the name of the file that match the id
+     *
+     * @param id
+     * @return
+     *      String with the name
+     */
+    public String getFileName(int id){
+        String name = "";
+
+        this.table = "Files";
+        this.columns = new String[]{
+                "name"
+        };
+        this.selection = "id = "+id;
+        this.selectionArgs = null;
+        this.groupBy = null;
+        this.having = null;
+        this.orderBy = null;
+
+        Cursor cursor = this.my_query(this.table,this.columns, this.selection, this.selectionArgs, this.groupBy, this.having, this.orderBy);
+        if(cursor.moveToFirst()) {
+            name = cursor.getString(cursor.getColumnIndex("name"));
+        }
+
+        return name;
+
+    }
+
+
     public int isUploaded(int id){
         int uploaded = 0;
 
@@ -172,7 +236,7 @@ public class WriteFileManager_model extends Base_model {
         this.orderBy = null;
 
         Cursor cursor = this.my_query(this.table,this.columns, this.selection, this.selectionArgs, this.groupBy, this.having, this.orderBy);
-        if(cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             uploaded = cursor.getInt(cursor.getColumnIndex("uploaded"));
         }
 
