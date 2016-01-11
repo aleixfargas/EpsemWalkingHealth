@@ -290,7 +290,7 @@ public class WriteFileManager {
         return status;
     }
 
-    
+
     /**
      * Method to write the results into the resultsFile.
      * It clears each result of the ArrayList<AccelData> results immediatly after writting it.
