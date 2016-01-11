@@ -26,7 +26,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
     public GraphChart graph = null;
     public BLEConnection BleConnection = null;
     public WriteFileManager writeFileManager = null;
-
+    public ServerUploader upload = null;
     public Boolean locked = false;
     private ArrayList<AccelData> results = new ArrayList<>();
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
@@ -40,6 +40,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
 
         createClearGraphButton();
         this.writeFileManager = new WriteFileManager(this);
+        this.upload = new ServerUploader(this);
         upload();
     }
 
@@ -132,7 +133,6 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
                 ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo mWifi = connManager.getActiveNetworkInfo();
                 if (mWifi.isConnected()) {
-                    ServerUploader upload = new ServerUploader();
                     upload.execute();
                 }
             }

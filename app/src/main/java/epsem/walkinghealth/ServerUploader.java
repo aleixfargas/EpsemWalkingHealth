@@ -7,15 +7,12 @@ import android.util.Log;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+
+import epsem.walkinghealth.common.utils;
+import epsem.walkinghealth.models.WriteFileManager_model;
 
 //Per connectar mòbil amb server:
 //- gksu gedit /etc/NetworkManager/system-connections/WalkingHealth
@@ -42,6 +39,14 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
     public int bytesRead, bytesAvailable, bufferSize;
     public byte[] buffer;
     public int maxBufferSize = 1*1024*1024;
+
+    private GraphActivity graph_activity = null;
+    private WriteFileManager_model WFMmodel = null;
+
+    public ServerUploader(GraphActivity graph_activity){
+        this.graph_activity = graph_activity;
+        this.WFMmodel = new WriteFileManager_model(this.graph_activity);
+    }
 
     @Override
     protected Void doInBackground(Void... params) {
@@ -122,13 +127,27 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         outputStream.close();
     }
 
-    private String getFilename(){
-        /*String sql = "SELECT name FROM Files WHERE done = 1 AND uploaded=0";
 
-        SQLiteDatabase db = openDatabase("db",MODE_PRIVATE,null);
-        Cursor cursor = db.rawQuery("Select file from Files",null);
-        */
-        String fitxer = "2016-01-04_19_0.txt";
+    /**
+     *Returns name of file to upload and sets upload == 1
+     * @return
+     *      String with file name
+     */
+    private String getFilename(){
+        String fitxer = "";
+        int id;
+        id = WFMmodel.getFilesToUpload();
+        Log.e("SerUpl","id_fileToUp = "+id);
+        if (id != -1) {
+            if (WFMmodel.isDone(id) == 1) {
+                fitxer = WFMmodel.getFileName(id);
+                WFMmodel.setUploaded(id);
+            }
+            Log.e("SerUpl","fitxer = "+fitxer);
+        }
+        else{
+            Log.e("SerUpl","no hi ha fitxers per pujar"+fitxer);
+        }
         return fitxer;
     }
 }
