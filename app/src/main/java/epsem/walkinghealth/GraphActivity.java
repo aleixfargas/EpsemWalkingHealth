@@ -19,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 
 import android.os.FileObserver;
 
+import epsem.walkinghealth.common.utils;
+
 public class GraphActivity extends Activity implements BLEConnectionListener {
     public Button btnClearGraph;
     public GraphChart graph = null;

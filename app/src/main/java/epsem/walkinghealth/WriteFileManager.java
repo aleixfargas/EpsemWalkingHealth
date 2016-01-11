@@ -8,21 +8,23 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import epsem.walkinghealth.common.utils;
+import epsem.walkinghealth.models.WriteFileManager_model;
+
 public class WriteFileManager {
     public GraphActivity graphActivity = null;
     public ArrayList<AccelData> results = new ArrayList<>();;
+    WriteFileManager_model WFMmodel = null;
 
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
     public static final long MAX_LENGTH = 8000000;
+    //public static final long MAX_LENGTH = 5000;
 
 
     /**
@@ -32,7 +34,7 @@ public class WriteFileManager {
      *      Gets the GraphActivity to read the results received from the BluetoothGattCallback
      */
     public WriteFileManager(final GraphActivity graphActivity) {
-        this.graphActivity = graphActivity;
+        create_ma(graphActivity);
 
         Runnable task = new Runnable() {
             public void run() {
@@ -42,6 +44,7 @@ public class WriteFileManager {
                 if (results != null) {
                     utils.log("WriteFileManager", "results size = " + results.size());
                     try {
+                        utils.log("WriteFileManager","starting writeFile()");
                         if(!writeFile()){
                             Log.e("WriteFileManager", "Something wrong happened");
                         }
@@ -53,6 +56,14 @@ public class WriteFileManager {
             }
         };
         worker.scheduleAtFixedRate(task, 30, 30, TimeUnit.SECONDS);
+    }
+
+
+    private void create_ma(GraphActivity graphActivity){
+        this.graphActivity = graphActivity;
+        utils.log("WriteFileManager","creating model");
+        this.WFMmodel = new WriteFileManager_model(this.graphActivity);
+        utils.log("WriteFileManager","created model");
     }
 
 
@@ -81,75 +92,24 @@ public class WriteFileManager {
 
 
     /**
-     * Method to get the dateTime formated as String Object
-     *
-     * @return
-     *      String containing the dateTime of the object
-     */
-    private String getStringDateTime() {
-        // (1) get today's date
-        Date today = Calendar.getInstance().getTime();
-
-        // (2) create a date "formatter"
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-
-        // (3) create a new String using the date format we want
-        return formatter.format(today);
-    }
-
-
-    /**
-     * Method to get the current Hour in a String format of two digits
-     *
-     * @return
-     */
-    private String getStringCurrentHour() {
-        // (1) get today's date
-        Date date = new Date();
-
-        // (2) create a date "formatter"
-        SimpleDateFormat formatter = new SimpleDateFormat("HH");
-        utils.log("WriteFileManager", "Current hour = " + formatter.format(date));
-        // (3) create a new String using the date format we want
-        return formatter.format(date);
-    }
-
-
-    /**
      * Method to get the file Number
      *
-     * @param line
-     * @param folder
-     * @return int
+     * @param date
+     * @param hourString
+     * @return
      *      Number identifier of the current results file
      */
-    private int getFileNumber(String line, File folder) {
-        int n = -1;
-
-        File existentFile = null;
-        String nextFileName = line+n;
-        if(folder.exists()) {
-            for (File file : folder.listFiles()) {
-                if (file.isFile()) {
-                    if ((file.getName()).contains(nextFileName)) {
-                        nextFileName = line + n;
-                        existentFile = file;
-                        n++;
-                    }
-                }
-            }
-        }
-
-        if(isFull(existentFile)){
-            n++;
-        }
-
-        if(n == -1){
-            n=0;
+    private int getFileNumber(String date, String hourString) {
+        int n = 0;
+        int id = 0;
+        id = WFMmodel.existFile(date+"_"+hourString+"_"+n+".txt");
+        while (WFMmodel.isDone(id) == 1) {
+            id = WFMmodel.existFile(date+"_"+hourString+"_"+(++n)+".txt");
         }
 
         return n;
     }
+
 
     /**
      * Method to know if the file could not be bigger because, if it does, it could not be send to the server
@@ -160,6 +120,7 @@ public class WriteFileManager {
      */
     private Boolean isFull(File file){
         Boolean r = false;
+
         if(file != null) {
             r = ((file.length() > MAX_LENGTH) || (file.length() == MAX_LENGTH));
         }
@@ -219,6 +180,94 @@ public class WriteFileManager {
 
 
     /**
+     * Check the time, the hour, and the filenumber and build a name for the next file
+     *
+     * @param resultsFolder The containing folder
+     * @return
+     *      A String containing the filename
+     */
+    private String createFileName(File resultsFolder, Date now) {
+        String fileDate = utils.getStringDate(now);
+        String fileHour = utils.getStringCurrentHour(now);
+        int filenum = getFileNumber(fileDate, fileHour);
+        String fileExtension = ".txt";
+
+        String filename = fileDate+"_"+fileHour+"_"+filenum+fileExtension;
+
+        return filename;
+    }
+
+
+    private int writeNow(File resultsFile) throws IOException{
+        int wrote = 0;
+        int i = 0;
+
+        BufferedWriter output;
+        FileWriter fw;
+
+        //create a BufferedWritter to write in the file
+        fw = new FileWriter(resultsFile, true);
+        output = new BufferedWriter(fw);
+
+        for (i = 0; ((i < this.results.size()) /*|| (i < 8190)*/); i++) {
+            if (this.results.get(i).toString() != null) {
+                output.write(this.results.get(i).toString());
+                wrote++;
+
+                if(isFull(resultsFile)) {
+                    output.flush();
+                    output.close();
+                    break;
+                }
+            }
+        }
+
+        output.flush();
+        output.close();
+
+        return wrote;
+    }
+
+    private int deleteNow(int todelete){
+        int deleted = 0;
+
+        while(todelete > 0){
+            todelete--;
+            this.results.remove(todelete);
+            deleted++;
+        }
+
+        return deleted;
+    }
+
+
+    public int writeTask(File resultsFile) throws IOException{
+        int status = 0, towrite = 0, wrote = 0, todelete = 0, deleted = 0;
+
+        towrite = this.results.size();
+        utils.log("WriteFileManager", "Writing " + towrite + " results");
+        wrote = writeNow(resultsFile);
+        utils.log("WriteFileManager", "Wrote " + wrote + " results");
+
+        todelete = wrote;
+
+        utils.log("WriteFileManager", "Deleting " + todelete + " results");
+        deleted = deleteNow(todelete);
+        utils.log("WriteFileManager", "Deleted " + deleted + "results");
+
+        if((todelete-deleted) == 0){
+            //success
+            status = 1;
+            if((towrite-wrote) != 0){
+                //file is full, the results that already had been wrote had been deleted, mark the file as done and then call again the writefile()
+                status = 2;
+            }
+        }
+
+        return status;
+    }
+
+    /**
      * Method to write the results into the resultsFile.
      * It clears each result of the ArrayList<AccelData> results immediatly after writting it.
      * It has a maximum of 8190 writes for each call.
@@ -232,70 +281,69 @@ public class WriteFileManager {
      *      When failed to create, open or write a file or directory
      */
     public Boolean writeFile() throws IOException {
-        File resultsFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
+        Date now = null;
+        String fileHour = "", filename = "";
 
-        //Implementació del punt 2 del document: 'FunctionalDesign_WriteFileManager'
-        String fileline = getStringDateTime()+"_"+getStringCurrentHour()+"_";
-        int filenum = getFileNumber(fileline, resultsFolder);
-        String fileExtension = ".txt";
-
-        File resultsFile = new File(resultsFolder, fileline + filenum + fileExtension);
-
-        BufferedWriter output;
-        FileWriter fw;
-
-        int i = 0;
-        int wrote = 0;
-        int todelete = 0;
+        int id = -1, status = 0;
         Boolean success = false;
 
+        File resultsFile = null;
+        File resultsFolder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth");
+
         if(createFolder(resultsFolder)) {
-            if (createFile(resultsFile)) {
-                //create a BufferedWritter to write in the file
-                fw = new FileWriter(resultsFile, true);
-                output = new BufferedWriter(fw);
+            now = new Date();
+            fileHour = utils.getStringCurrentHour(now);
 
-                utils.log("WriteFileManager", "Writing " + this.results.size() + " results");
-                for (i = 0; ((i < this.results.size()) /*|| (i < 8190)*/); i++) {
-                    if (this.results.get(i).toString() != null) {
-                        output.write(this.results.get(i).toString());
-                        wrote++;
+            utils.log("WriteFileManager","getting name");
 
-                        if(isFull(resultsFile)) {
-                            output.flush();
-                            output.close();
+            //Implementació del punt 2 del document: 'FunctionalDesign_WriteFileManager'
+            filename = createFileName(resultsFolder, now);
+            resultsFile = new File(resultsFolder, filename);
+            utils.log("WriteFileManager","name = "+filename);
 
-                            filenum++;
-                            resultsFile = new File(resultsFolder, fileline + filenum + fileExtension);
-                            createFile(resultsFile);
-                            fw = new FileWriter(resultsFile);
-                            output = new BufferedWriter(fw);
-                        }
-                    }
+            utils.log("WriteFileManager","exist "+filename+"?");
+            id = WFMmodel.existFile(filename);
+            utils.log("WriteFileManager","id = "+id);
+
+            if (id == -1) {
+                //if not exists, add to db and create it in the folder
+                utils.log("WriteFileManager", "inserting newfile = " + filename);
+                createFile(resultsFile);
+                utils.log("WriteFileManager", "inserting newfile = " + filename);
+                WFMmodel.insert_newFile(now, fileHour, filename);
+                utils.log("WriteFileManager", "success inserting");
+
+                status = writeTask(resultsFile);
+            }
+            else{
+                //if the file exists, check if is full
+                if (!isFull(resultsFile)) {
+                    status = writeTask(resultsFile);
                 }
-
-                utils.log("WriteFileManager", "Wrote " + wrote + " results");
-
-                output.flush();
-                output.close();
-
-                todelete = wrote;
-
-                utils.log("WriteFileManager", "Deleting " + todelete + " results");
-                while(todelete > 0){
-                    todelete--;
-                    this.results.remove(todelete);
+                else{
+                    //if is full, mark the file as done and rewrite the filename calling himself recursively .
+                    utils.log("WriteFileManager","Set as done");
+                    WFMmodel.done(id);
+                    success = writeFile();
                 }
+            }
 
-                utils.log("WriteFileManager", "Deleted " + (wrote - todelete) + "results");
+            switch (status){
+                case 0:
+                    success = false;
+                    break;
 
-                if(todelete == 0) {
+                case 1:
                     success = true;
-                }
+                    break;
+
+                case 2:
+                    WFMmodel.done(id);
+                    success = writeFile();
+                    break;
             }
         }
 
         return success;
     }
 }
-
