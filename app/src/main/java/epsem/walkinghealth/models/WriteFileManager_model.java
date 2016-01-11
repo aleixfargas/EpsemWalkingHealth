@@ -21,6 +21,7 @@ public class WriteFileManager_model extends Base_model {
     private String having = null;
     private String orderBy = null;
 
+    
     public WriteFileManager_model(Context context) {
         super(context);
     }
@@ -97,6 +98,7 @@ public class WriteFileManager_model extends Base_model {
     }
 */
 
+
     /**
      * Insert into Files a new register file
      *
@@ -137,6 +139,7 @@ public class WriteFileManager_model extends Base_model {
         return done;
     }
 
+
     /**
      * Set a File to done
      *
@@ -147,6 +150,46 @@ public class WriteFileManager_model extends Base_model {
         this.table = "Files";
         this.values = new ContentValues();
         this.values.put("done", "1");
+        this.whereClause = "id = "+id;
+        this.whereArgs = null;
+
+        rows_affected = this.my_update(this.table, this.values, this.whereClause, this.whereArgs);
+        utils.log("WFMmodel","affected "+rows_affected+" rows");
+    }
+
+
+    public int isUploaded(int id){
+        int uploaded = 0;
+
+        this.table = "Files";
+        this.columns = new String[]{
+                "uploaded"
+        };
+        this.selection = "id = "+id;
+        this.selectionArgs = null;
+        this.groupBy = null;
+        this.having = null;
+        this.orderBy = null;
+
+        Cursor cursor = this.my_query(this.table,this.columns, this.selection, this.selectionArgs, this.groupBy, this.having, this.orderBy);
+        if(cursor.moveToFirst()) {
+            uploaded = cursor.getInt(cursor.getColumnIndex("uploaded"));
+        }
+
+        return uploaded;
+    }
+
+
+    /**
+     * Set a File to uploaded
+     *
+     * @param id
+     */
+    public void setUploaded(int id) {
+        int rows_affected = 0;
+        this.table = "Files";
+        this.values = new ContentValues();
+        this.values.put("uploaded", "1");
         this.whereClause = "id = "+id;
         this.whereArgs = null;
 
