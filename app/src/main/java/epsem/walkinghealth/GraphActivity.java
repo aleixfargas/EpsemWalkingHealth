@@ -89,19 +89,22 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
     }
 
     @Override
-    public void onDataReceived(String MACaddr, AccelData result) {
-        Double x = result.x;
-        Double y = result.y;
-        Double z = result.z;
+    public void onDataReceived(String MACaddr, ArrayList<AccelData> result, int batteryState) {
 
-        if(!locked) {
-            utils.log("GraphActivity","writting "+result.toString());
-            this.results.add(result);
+        for(int i = 0; i < 6; i++){
+            Double x = result.get(i).x;
+            Double y = result.get(i).y;
+            Double z = result.get(i).z;
+
+            if(!locked) {
+                utils.log("GraphActivity", "writting " + result.toString());
+                this.results.add(result.get(i));
+            }
+
+            graph.toString();
+            graph.add(System.currentTimeMillis(), x, y, z);
+            graph.update();
         }
-
-        graph.toString();
-        graph.add(System.currentTimeMillis(), x, y, z);
-        graph.update();
     }
 
 

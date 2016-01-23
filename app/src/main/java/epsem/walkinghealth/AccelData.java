@@ -3,15 +3,17 @@ package epsem.walkinghealth;
 import java.util.ArrayList;
 
 public class AccelData {
-    private long timestamp;
+    private String timestamp;
+    public int sampleCounter;
     public double x;
     public double y;
     public double z;
     public int sensor;
     private int usuari;
 
-    public AccelData(int sensor, long timestamp, double x, double y, double z) {
+    public AccelData(int sensor, String timestamp, int counter, double x, double y, double z) {
         this.timestamp = timestamp;
+        this.sampleCounter = counter;
         this.x = x;
         this.y = y;
         this.z = z;
@@ -19,10 +21,10 @@ public class AccelData {
         this.sensor = sensor;
     }
 
-    public long getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
     public int getSensor() {
@@ -38,6 +40,6 @@ public class AccelData {
         this.usuari = usuari;
     }
     public String toString(){
-        return "Sensor "+sensor+": "+timestamp+" - "+x+", "+y+", "+z+";\n";
+        return sensor+","+timestamp+","+sampleCounter+","+x+","+y+","+z+"\n";
     }
 }
