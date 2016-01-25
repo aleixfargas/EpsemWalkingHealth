@@ -185,11 +185,9 @@ public class WriteFileManager {
     /**
      * Set the previous File as done
      */
-    private void setOldFileDone(){
-        int old_id = this.WFMmodel.existFile(this.oldDate+this.oldHour+getFileNumber(this.oldDate,this.oldHour)+".txt");
-        if(old_id != -1){
-            WFMmodel.done(old_id);
-        }
+    private void setOldFileDone(String  date, String hour){
+        int c = this.WFMmodel.setOlderDone(date, hour);
+        Log.e("WFM","set as done "+c+" Files");
     }
 
 
@@ -202,16 +200,9 @@ public class WriteFileManager {
      */
     private String createFileName(Date now) {
         String fileDate = utils.getStringDate(now);
-        if(!fileDate.equals(this.oldDate)){
-            setOldFileDone();
-            this.oldDate = fileDate;
-        }
-
         String fileHour = utils.getStringCurrentHour(now);
-        if(!fileHour.equals(this.oldHour)){
-            setOldFileDone();
-            this.oldHour = fileHour;
-        }
+
+        setOldFileDone(fileDate, fileHour);
 
         int filenum = getFileNumber(fileDate, fileHour);
         String filename = fileDate+"_"+fileHour+"_"+filenum+FILE_EXTENSION;

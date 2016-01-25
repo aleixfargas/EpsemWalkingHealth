@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import epsem.walkinghealth.common.utils;
 import epsem.walkinghealth.models.WriteFileManager_model;
 
 //Per connectar mòbil amb server:
@@ -39,7 +38,7 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
     public int bytesRead, bytesAvailable, bufferSize;
     public byte[] buffer;
     public int maxBufferSize = 1*1024*1024;
-
+    public int id = -1;
     private GraphActivity graph_activity = null;
     private WriteFileManager_model WFMmodel = null;
 
@@ -52,37 +51,51 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... params) {
         //Thread que s'executa en background, accepta el pas de parametres
         //HTTP Post - Connexió persistent
-       try {
-           this.url = new URL(urlServer);
+        id = -1;
+        try {
+            Log.e("SerUpl","init");
+
+            this.url = new URL(urlServer);
            //HTTP Post - Connexió persistent
-           StartConnection();
+            StartConnection();
+            Log.e("SerUpl", "Trace1");
 
            //Lectura del fitxer
            folder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/");
            Log.e("SerUpl","folder: "+folder);
-           String filename= getFilename();
-           Log.e("SerUpl","filename: "+filename);
-           file = new File(folder, filename);
-           fileInputStream = new FileInputStream(file);
-           readFile();
+           id = getFileid();
+           Log.e("SerUpl","fileId: "+id);
+           if(id != -1) {
+               file = new File(folder, WFMmodel.getFileName(id));
+               if (file.exists()) {
+                   fileInputStream = new FileInputStream(file);
+                   readFile();
 
-           //Canal de sortida
-           outputStream = new DataOutputStream(connection.getOutputStream());
-           Log.e("SerUpl", "outputstream " + outputStream.toString());
-           outputChannel();
+                   //Canal de sortida
+                   outputStream = new DataOutputStream(connection.getOutputStream());
+                   Log.e("SerUpl", "outputstream " + outputStream.toString());
+                   outputChannel();
 
-            //Transmissió fitxer
-           transmitFile();
+                   //Transmissió fitxer
+                   transmitFile();
+                   WFMmodel.setUploaded(id);
 
-           //Elimina fitxer
-           if (connection.getResponseCode() ==  200){
-               boolean deleted = file.delete();
-               Log.e("SerUpl", "fitxer pujat i eliminat: " + deleted);
+                   //Elimina fitxer
+                   if (connection.getResponseCode() == 200) {
+                       boolean deleted = file.delete();
+                       Log.e("SerUpl", "fitxer pujat i eliminat: " + deleted);
+                   }
+               }
+               else {
+                   Log.e("SerUpl","set as uploaded");
+                   WFMmodel.setUploaded(id);
+                   Log.e("SerUpl", "set as uploaded!!!!!");
+               }
            }
-
        }catch (IOException ioe){
            Log.e("SerUpl", "IOException when connecting"+ioe);
        }
+        Log.e("SerUpl","return!");
         return null;
     }
 
@@ -133,21 +146,20 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
      * @return
      *      String with file name
      */
-    private String getFilename(){
+    private int getFileid(){
         String fitxer = "";
         int id;
         id = WFMmodel.getFilesToUpload();
         Log.e("SerUpl","id_fileToUp = "+id);
         if (id != -1) {
-            if (WFMmodel.isDone(id) == 1) {
-                fitxer = WFMmodel.getFileName(id);
-                WFMmodel.setUploaded(id);
+            if (WFMmodel.isDone(id) != 1) {
+                id=-1;
             }
-            Log.e("SerUpl","fitxer = "+fitxer);
+            Log.e("SerUpl","fitxer = "+WFMmodel.getFileName(id));
         }
         else{
             Log.e("SerUpl","no hi ha fitxers per pujar"+fitxer);
         }
-        return fitxer;
+        return id;
     }
 }

@@ -19,7 +19,13 @@ public class MainActivity extends Activity implements BLEConnectionListener {
     public MainActivity main_activity = null;
     private Button btnConnect;
     public ArrayList<String> MACaddrArray = new ArrayList<>();
-    //public String MACaddr_right = "C7:C6:B3:FB:67:ED";
+    //G2
+    //public String MACaddr_right = "FE:15:A6:64:56:D2";
+
+    // G1
+    // public String MACaddr_right = "C7:C6:B3:FB:67:ED";
+
+    //Our
     public String MACaddr_right = "D6:1A:9F:67:E5:8C";
     //public String MACaddr_right = "F8:08:97:8B:45:29";
     //public String MACaddr_right = "DD:81:3C:77:F6:52";

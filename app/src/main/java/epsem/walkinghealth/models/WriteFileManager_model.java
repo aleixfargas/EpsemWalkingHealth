@@ -3,6 +3,7 @@ package epsem.walkinghealth.models;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -258,6 +259,24 @@ public class WriteFileManager_model extends Base_model {
         this.whereArgs = null;
 
         rows_affected = this.my_update(this.table, this.values, this.whereClause, this.whereArgs);
-        utils.log("WFMmodel","affected "+rows_affected+" rows");
+    }
+
+    /**
+     *
+     */
+    public int setOlderDone(String  date, String hour){
+        int rows_affected = 0;
+        this.table = "Files";
+        this.values = new ContentValues();
+        this.values.put("done", "1");
+        this.whereClause = "date NOT LIKE ? OR (date LIKE ? AND hour NOT LIKE ?)";
+        this.whereArgs = new String[]{
+            date,
+            date,
+            hour
+        };
+
+        rows_affected = this.my_update(this.table, this.values, this.whereClause, this.whereArgs);
+        return rows_affected;
     }
 }

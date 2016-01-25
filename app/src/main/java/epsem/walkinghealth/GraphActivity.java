@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import epsem.walkinghealth.common.utils;
 
 public class GraphActivity extends Activity implements BLEConnectionListener {
+
     public Button btnClearGraph;
     public TextView batteryLevel;
     public GraphChart graph = null;
@@ -45,6 +47,13 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         createGraph();
 
         createClearGraphButton();
+
+        Runnable task = new Runnable() {
+            public void run() {
+                graph.clear();
+            }
+        };
+        worker.scheduleAtFixedRate(task, 30, 30, TimeUnit.SECONDS);
 
         this.batteryLevel = (TextView) findViewById(R.id.batterylevel);
 
