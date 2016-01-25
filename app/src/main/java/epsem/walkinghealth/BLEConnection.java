@@ -47,6 +47,7 @@ public class BLEConnection {
     public Object SystemService = null;
 
     public Integer DeviceNumber = 0;
+    private Context appcontext = null;
 
 
     /**
@@ -118,6 +119,7 @@ public class BLEConnection {
         final BluetoothDevice device;
         BluetoothGatt gatt;
 
+        this.appcontext = appcontext;
         this.SystemService = systemService;
 
         callback = new BluetoothGattCallback(){
@@ -155,7 +157,7 @@ public class BLEConnection {
                 // Processament de dades
                 bitControl = data[0] >> 7;
                 leg = (data[0] >> 6) & 1;
-                batteryState = data[0] & 63;
+                batteryState = ((data[0] & 63)*100)/64;
 
                 utils.log("onCharChanged", "control?");
 
@@ -182,13 +184,17 @@ public class BLEConnection {
         this.AdapterArray.add(id,adapter);
         device = adapter.getRemoteDevice(MACaddr);
         this.DeviceArray.add(id,device);
-        gatt = device.connectGatt(appcontext, false, callback);
+        gatt = device.connectGatt(this.appcontext, false, callback);
         this.GattArray.add(id,gatt);
         this.CallbackArray.add(id,callback);
 
         this.DeviceNumber++;
     }
 
+
+    public void createCallback(final Integer id, final String MACaddr){
+        createCallback(id, MACaddr, this.appcontext, this.SystemService);
+    }
 
     public void enableTXNotification(Integer id) {
         final UUID UART_SERVICE = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
@@ -235,9 +241,9 @@ public class BLEConnection {
         if (this.AdapterArray.get(id) != null && !this.AdapterArray.get(id).isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(activity, enableIntent, REQUEST_ENABLE_BT, null);
+            activity.recreate();
         }
         //forwardStatusUpdate(MACaddrArray.get(id),0);
-        activity.recreate();
     }
 
 
@@ -254,14 +260,11 @@ public class BLEConnection {
             this.AdapterArray.add(id,null);
             this.DeviceArray.add(id, null);
             this.GattArray.add(id,null);
+            forwardStatusUpdate(MACaddrArray.get(id), 0);
             return true;
         }
         else{
             return false;
         }
-    }
-
-    public int getBit(int position, byte data){
-            return (data >> position);
     }
 }

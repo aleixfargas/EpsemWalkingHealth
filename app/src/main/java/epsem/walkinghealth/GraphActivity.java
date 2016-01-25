@@ -18,11 +18,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import android.os.FileObserver;
+import android.widget.TextView;
 
 import epsem.walkinghealth.common.utils;
 
 public class GraphActivity extends Activity implements BLEConnectionListener {
     public Button btnClearGraph;
+    public TextView batteryLevel;
     public GraphChart graph = null;
     public BLEConnection BleConnection = null;
     public WriteFileManager writeFileManager = null;
@@ -30,6 +32,10 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
     public Boolean locked = false;
     private ArrayList<AccelData> results = new ArrayList<>();
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
+    private int num = 0;
+
+    public static final Integer RADINO_RIGHT = 0;
+    public static final Integer RADINO_LEFT = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +45,9 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         createGraph();
 
         createClearGraphButton();
+
+        this.batteryLevel = (TextView) findViewById(R.id.batterylevel);
+
         this.writeFileManager = new WriteFileManager(this);
         this.upload = new ServerUploader(this);
         upload();
@@ -111,7 +120,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
 
 
     public void updateBattery(int level){
-
+        batteryLevel.setText(level+"%");
     }
 
     public void createGraph() {

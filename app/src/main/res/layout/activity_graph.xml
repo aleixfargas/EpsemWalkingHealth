@@ -10,8 +10,7 @@
         android:id="@+id/batterylevel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="0%"
-        android:layout_above="@+id/graph_layout">
+        android:text="0%">
     </TextView>
 
     <LinearLayout

@@ -59,16 +59,16 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
 
            //Lectura del fitxer
            folder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/");
-           Log.e("app","folder: "+folder);
+           Log.e("SerUpl","folder: "+folder);
            String filename= getFilename();
-           Log.e("app","filename: "+filename);
+           Log.e("SerUpl","filename: "+filename);
            file = new File(folder, filename);
            fileInputStream = new FileInputStream(file);
            readFile();
 
            //Canal de sortida
            outputStream = new DataOutputStream(connection.getOutputStream());
-           Log.e("App", "outputstream " + outputStream.toString());
+           Log.e("SerUpl", "outputstream " + outputStream.toString());
            outputChannel();
 
             //Transmissió fitxer
@@ -77,11 +77,11 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
            //Elimina fitxer
            if (connection.getResponseCode() ==  200){
                boolean deleted = file.delete();
-               Log.e("App", "fitxer pujat i eliminat: " + deleted);
+               Log.e("SerUpl", "fitxer pujat i eliminat: " + deleted);
            }
 
        }catch (IOException ioe){
-           Log.e("Server", "IOException when connecting"+ioe);
+           Log.e("SerUpl", "IOException when connecting"+ioe);
        }
         return null;
     }
@@ -114,14 +114,14 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         while (bytesRead > 0) {
             outputStream.write(buffer, 0, bufferSize);
             bytesAvailable = fileInputStream.available();
-            Log.e("App", "Bytes read: " + buffer.length);
+            Log.e("SerUpl", "Bytes read: " + buffer.length);
             bufferSize = Math.min(bytesAvailable, maxBufferSize);
             bytesRead = fileInputStream.read(buffer, 0, bufferSize);
         }
         outputStream.writeBytes("\r\n");
         outputStream.writeBytes("--" + boundary + "--" + "\r\n");
-        Log.e("App", "Server response code: " + connection.getResponseCode());
-        Log.e("App", "Server response msg: " + connection.getResponseMessage());
+        Log.e("SerUpl", "Server response code: " + connection.getResponseCode());
+        Log.e("SerUpl", "Server response msg: " + connection.getResponseMessage());
         fileInputStream.close();
         outputStream.flush();
         outputStream.close();
