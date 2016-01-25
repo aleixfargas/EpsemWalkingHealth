@@ -17,10 +17,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+
+import epsem.walkinghealth.common.utils;
 
 import static android.support.v4.app.ActivityCompat.startActivityForResult;
 
@@ -93,9 +96,9 @@ public class BLEConnection {
     }
 
 
-    public void forwardDataReceived(String MACaddr, AccelData result) {
+    public void forwardDataReceived(String MACaddr, ArrayList<AccelData> result, int batteryState) {
         for (BLEConnectionListener listener: listeners) {
-            listener.onDataReceived(MACaddr, result);
+            listener.onDataReceived(MACaddr, result, batteryState);
         }
     }
 
@@ -138,17 +141,38 @@ public class BLEConnection {
             public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
                 // S'ha rebut una notificació, el seu valor s'obté amb characteristic.getValue();
                 //Rebuda de dades
+                int i = 0;
+                int bitControl = 0;
+                int leg = id;
+                int batteryState = 0;
+                int counter = 0;
+
+                AccelData AD = null;
+                ArrayList<AccelData> ADArray = new ArrayList<>();
+
                 byte[] data = characteristic.getValue();
-                Log.e("onCharChanged", "dades radino: [" + (double) (data[0]) + ", " + (double) (data[1])+ ", " + (double) (data[2]) + "]");//toDouble(data));
 
                 // Processament de dades
-                AccelData AD = new AccelData(id, System.currentTimeMillis(), data[0], data[1], data[2]);
+                bitControl = data[0] >> 7;
+                leg = (data[0] >> 6) & 1;
+                batteryState = data[0] & 63;
 
-                //Visualització dades + Emmagatzematge de dades
-                forwardDataReceived(MACaddrArray.get(id), AD);
+                utils.log("onCharChanged", "control?");
+
+                if(bitControl == 0) {
+                    counter = data[1];
+                    utils.log("OnCharCanged", "counter = "+counter);
+                    for(i=2;i<20;i=i+3){
+                        AD = new AccelData(leg, utils.getStringDateTime(new Date()), counter, data[i], data[i+1], data[i+2]);
+                        utils.log("OnCharCanged", "batteryState: " + batteryState + " data: " + AD.toString());
+                        ADArray.add(AD);
+                    }
+
+                    //Visualització dades + Emmagatzematge de dades
+                    forwardDataReceived(MACaddrArray.get(id), ADArray, batteryState);
+                }
             }
         };
-        Log.e("callback","callback #"+id+" created");
 
         /*Saving the callback and all BLE elements in an array with an id identifier*/
         this.MACaddrArray.add(id, MACaddr);
@@ -212,7 +236,8 @@ public class BLEConnection {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(activity, enableIntent, REQUEST_ENABLE_BT, null);
         }
-        forwardStatusUpdate(MACaddrArray.get(id),0);
+        //forwardStatusUpdate(MACaddrArray.get(id),0);
+        activity.recreate();
     }
 
 
@@ -234,5 +259,9 @@ public class BLEConnection {
         else{
             return false;
         }
+    }
+
+    public int getBit(int position, byte data){
+            return (data >> position);
     }
 }

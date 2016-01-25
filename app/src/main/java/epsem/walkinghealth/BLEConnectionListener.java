@@ -28,6 +28,5 @@ public interface BLEConnectionListener {
      * @param MACaddr MAC address of the remote device that send a characteristic
      * @param result contain a result received at the moment
     */
-    void onDataReceived(String MACaddr, AccelData result);
-
+    void onDataReceived(String MACaddr, ArrayList<AccelData> result, int batteryState);
 }
