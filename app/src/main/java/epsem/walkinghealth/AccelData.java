@@ -40,6 +40,6 @@ public class AccelData {
         this.usuari = usuari;
     }
     public String toString(){
-        return sensor+","+timestamp+","+sampleCounter+","+x+","+y+","+z+"\n";
+        return usuari+","+sensor+","+timestamp+","+sampleCounter+","+x+","+y+","+z+"\n";
     }
 }

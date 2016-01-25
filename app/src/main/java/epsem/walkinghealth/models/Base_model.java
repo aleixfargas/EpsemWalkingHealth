@@ -20,7 +20,6 @@ public class Base_model extends config {
     Base_model(Context context) {
         super(context);
         SQLiteDatabase db_read = super.getReadableDatabase();
-        Log.e("BaseModel", "db_path = " + db_read.getPath());
 
         this.original_db = new File(db_read.getPath());
     }

@@ -90,7 +90,6 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
 
     @Override
     public void onDataReceived(String MACaddr, ArrayList<AccelData> result, int batteryState) {
-
         for(int i = 0; i < 6; i++){
             Double x = result.get(i).x;
             Double y = result.get(i).y;
@@ -101,12 +100,18 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
                 this.results.add(result.get(i));
             }
 
+            updateBattery(batteryState);
+
             graph.toString();
             graph.add(System.currentTimeMillis(), x, y, z);
             graph.update();
         }
     }
 
+
+    public void updateBattery(int level){
+
+    }
 
     public void createGraph() {
         android.widget.LinearLayout layout;
@@ -124,6 +129,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
             @Override
             public void onClick(View v) {
                 graph.clear();
+                graph.update();
             }
         });
     }

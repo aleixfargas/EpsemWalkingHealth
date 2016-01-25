@@ -151,21 +151,20 @@ public class BLEConnection {
                 ArrayList<AccelData> ADArray = new ArrayList<>();
 
                 byte[] data = characteristic.getValue();
-                Log.e("onCharChanged", "dades radino: [" + (double) (data[0]) + ", " + (double) (data[1])+ ", " + (double) (data[2]) + "]");//toDouble(data));
 
                 // Processament de dades
-                bitControl = getBit(10000000, data[0]);
-                leg = getBit(01000000, data[0]);
-                batteryState = getBit(00111111, data[0]);
+                bitControl = data[0] >> 7;
+                leg = (data[0] >> 6) & 1;
+                batteryState = data[0] & 63;
 
-                if(bitControl == 1) {
-                    Log.e("onCharChanged", "bit control! LOOOOL");
-                    counter = getBit(11111111, data[1]);
+                utils.log("onCharChanged", "control?");
 
-                    for(i=2;i<=20;i=i+3){
-                        Log.e("onCharChanged", "dades! LOOOOL +1");
+                if(bitControl == 0) {
+                    counter = data[1];
+                    utils.log("OnCharCanged", "counter = "+counter);
+                    for(i=2;i<20;i=i+3){
                         AD = new AccelData(leg, utils.getStringDateTime(new Date()), counter, data[i], data[i+1], data[i+2]);
-                        Log.e("onCharChanged", AD.toString());
+                        utils.log("OnCharCanged", "batteryState: " + batteryState + " data: " + AD.toString());
                         ADArray.add(AD);
                     }
 
@@ -174,7 +173,6 @@ public class BLEConnection {
                 }
             }
         };
-        Log.e("callback","callback #"+id+" created");
 
         /*Saving the callback and all BLE elements in an array with an id identifier*/
         this.MACaddrArray.add(id, MACaddr);
@@ -238,7 +236,8 @@ public class BLEConnection {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(activity, enableIntent, REQUEST_ENABLE_BT, null);
         }
-        forwardStatusUpdate(MACaddrArray.get(id),0);
+        //forwardStatusUpdate(MACaddrArray.get(id),0);
+        activity.recreate();
     }
 
 
@@ -263,6 +262,6 @@ public class BLEConnection {
     }
 
     public int getBit(int position, byte data){
-        return (data >> position) & 1;
+            return (data >> position);
     }
 }
