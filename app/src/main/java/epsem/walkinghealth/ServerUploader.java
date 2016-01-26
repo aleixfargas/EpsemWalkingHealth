@@ -25,7 +25,8 @@ import epsem.walkinghealth.models.WriteFileManager_model;
 
 
 public class ServerUploader extends AsyncTask<Void, Void, Void> {
-    public String urlServer = "http://10.42.0.1/prova/index.php";
+    public String urlServer = "http://walkinghealth.pythonanywhere.com/en/reception/do_receive/";
+    //public String urlServer = "http://10.42.0.1/prova/index.php";
     public String boundary = "*****";
     public URL url;
     public HttpURLConnection connection;

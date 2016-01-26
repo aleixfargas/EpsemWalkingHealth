@@ -269,7 +269,7 @@ public class WriteFileManager_model extends Base_model {
         this.table = "Files";
         this.values = new ContentValues();
         this.values.put("done", "1");
-        this.whereClause = "date NOT LIKE ? OR (date LIKE ? AND hour NOT LIKE ?)";
+        this.whereClause = "(date NOT LIKE ? OR (date LIKE ? AND hour NOT LIKE ?)) AND done = 0";
         this.whereArgs = new String[]{
             date,
             date,

@@ -41,6 +41,7 @@ public class WriteFileManager {
 
         Runnable task = new Runnable() {
             public void run() {
+                graphActivity.lock_server = true;
                 utils.log("WriteFileManager", "auto-executing Writter task");
                 results = concat(results, graphActivity.getResults());
 
@@ -56,6 +57,7 @@ public class WriteFileManager {
                     }
                 }
                 utils.log("WriteFileManager", "end Writter task");
+                graphActivity.lock_server = false;
             }
         };
         worker.scheduleAtFixedRate(task, 30, 30, TimeUnit.SECONDS);

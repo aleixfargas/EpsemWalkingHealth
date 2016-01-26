@@ -31,10 +31,13 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
     public BLEConnection BleConnection = null;
     public WriteFileManager writeFileManager = null;
     public ServerUploader upload = null;
-    public Boolean locked = false;
+    public Boolean locked = false, lock_server = false;
+    public ConnectivityManager connManager = null;
+    public NetworkInfo mWifi = null;
     private ArrayList<AccelData> results = new ArrayList<>();
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
     private int num = 0;
+
 
     public static final Integer RADINO_RIGHT = 0;
     public static final Integer RADINO_LEFT = 1;
@@ -157,14 +160,16 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
     public void upload(){
         Runnable task = new Runnable() {
             public void run() {
-                ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo mWifi = connManager.getActiveNetworkInfo();
-                if (mWifi.isConnected()) {
-                    upload.execute();
+                if(!lock_server) {
+                    connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    mWifi = connManager.getActiveNetworkInfo();
+                    if (mWifi.isConnected()) {
+                        upload.execute();
+                    }
                 }
             }
         };
-        worker.scheduleAtFixedRate(task, 1, 1, TimeUnit.MINUTES);
+        worker.scheduleAtFixedRate(task, 1, 45, TimeUnit.SECONDS);
     }
 
     /**
