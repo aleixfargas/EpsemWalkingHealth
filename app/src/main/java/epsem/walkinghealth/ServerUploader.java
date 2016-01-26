@@ -7,15 +7,11 @@ import android.util.Log;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+
+import epsem.walkinghealth.models.WriteFileManager_model;
 
 //Per connectar mòbil amb server:
 //- gksu gedit /etc/NetworkManager/system-connections/WalkingHealth
@@ -29,7 +25,8 @@ import java.util.Date;
 
 
 public class ServerUploader extends AsyncTask<Void, Void, Void> {
-    public String urlServer = "http://10.42.0.1/prova/index.php";
+    public String urlServer = "http://walkinghealth.pythonanywhere.com/en/reception/do_receive/";
+    //public String urlServer = "http://10.42.0.1/prova/index.php";
     public String boundary = "*****";
     public URL url;
     public HttpURLConnection connection;
@@ -42,42 +39,66 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
     public int bytesRead, bytesAvailable, bufferSize;
     public byte[] buffer;
     public int maxBufferSize = 1*1024*1024;
+    public int id = -1;
+    private GraphActivity graph_activity = null;
+    private WriteFileManager_model WFMmodel = null;
+
+    public ServerUploader(GraphActivity graph_activity){
+        this.graph_activity = graph_activity;
+        this.WFMmodel = new WriteFileManager_model(this.graph_activity);
+    }
 
     @Override
     protected Void doInBackground(Void... params) {
         //Thread que s'executa en background, accepta el pas de parametres
         //HTTP Post - Connexió persistent
-       try {
-           this.url = new URL(urlServer);
-           //HTTP Post - Connexió persistent
-           StartConnection();
+        id = -1;
+        try {
+            Log.e("SerUpl", "init");
 
-           //Lectura del fitxer
-           folder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/");
-           Log.e("app","folder: "+folder);
-           String filename= getFilename();
-           Log.e("app","filename: "+filename);
-           file = new File(folder, filename);
-           fileInputStream = new FileInputStream(file);
-           readFile();
+            this.url = new URL(urlServer);
+            //HTTP Post - Connexió persistent
+            StartConnection();
+            Log.e("SerUpl", "Trace1");
 
-           //Canal de sortida
-           outputStream = new DataOutputStream(connection.getOutputStream());
-           Log.e("App", "outputstream " + outputStream.toString());
-           outputChannel();
+            //Lectura del fitxer
+            folder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/");
+            Log.e("SerUpl","folder: "+folder);
+            id = getFileid();
+            //id = 11;
+            Log.e("SerUpl","fileId: "+id);
+            if(id != -1) {
+                file = new File(folder, WFMmodel.getFileName(id));
+                if (file.exists()) {
+                   fileInputStream = new FileInputStream(file);
+                   readFile();
 
-            //Transmissió fitxer
-           transmitFile();
+                   //Canal de sortida
+                   outputStream = new DataOutputStream(connection.getOutputStream());
+                   Log.e("SerUpl", "outputstream " + outputStream.toString());
+                   outputChannel();
 
-           //Elimina fitxer
-           if (connection.getResponseCode() ==  200){
-               boolean deleted = file.delete();
-               Log.e("App", "fitxer pujat i eliminat: " + deleted);
+                   //Transmissió fitxer
+                   if(transmitFile() == 200) {
+                       WFMmodel.setUploaded(id);
+
+                       //Elimina fitxer
+                       if (connection.getResponseCode() == 200) {
+                           boolean deleted = file.delete();
+                           Log.e("SerUpl", "fitxer pujat i eliminat: " + deleted);
+                       }
+                   }
+               }
+               else {
+                   Log.e("SerUpl","set as uploaded");
+                   WFMmodel.setUploaded(id);
+                   Log.e("SerUpl", "set as uploaded!!!!!");
+               }
            }
-
        }catch (IOException ioe){
-           Log.e("Server", "IOException when connecting"+ioe);
+           Log.e("SerUpl", "IOException when connecting"+ioe);
        }
+        Log.e("SerUpl","return!");
         return null;
     }
 
@@ -105,30 +126,48 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         outputStream.writeBytes("\r\n");
     }
 
-    private void transmitFile() throws IOException{
+    private int transmitFile() throws IOException{
+        int r;
         while (bytesRead > 0) {
             outputStream.write(buffer, 0, bufferSize);
             bytesAvailable = fileInputStream.available();
-            Log.e("App", "Bytes read: " + buffer.length);
+            Log.e("SerUpl", "Bytes read: " + buffer.length);
             bufferSize = Math.min(bytesAvailable, maxBufferSize);
             bytesRead = fileInputStream.read(buffer, 0, bufferSize);
         }
         outputStream.writeBytes("\r\n");
         outputStream.writeBytes("--" + boundary + "--" + "\r\n");
-        Log.e("App", "Server response code: " + connection.getResponseCode());
-        Log.e("App", "Server response msg: " + connection.getResponseMessage());
+
+        r = connection.getResponseCode();
+        Log.e("SerUpl", "Server response code: " + connection.getResponseCode());
+        Log.e("SerUpl", "Server response msg: " + connection.getResponseMessage());
         fileInputStream.close();
         outputStream.flush();
         outputStream.close();
+
+        return r;
     }
 
-    private String getFilename(){
-        /*String sql = "SELECT name FROM Files WHERE done = 1 AND uploaded=0";
 
-        SQLiteDatabase db = openDatabase("db",MODE_PRIVATE,null);
-        Cursor cursor = db.rawQuery("Select file from Files",null);
-        */
-        String fitxer = "2016-01-03_19_0.txt";
-        return fitxer;
+    /**
+     *Returns name of file to upload and sets upload == 1
+     * @return
+     *      String with file name
+     */
+    private int getFileid(){
+        String fitxer = "";
+        int id;
+        id = WFMmodel.getFilesToUpload();
+        Log.e("SerUpl","id_fileToUp = "+id);
+        if (id != -1) {
+            if (WFMmodel.isDone(id) != 1) {
+                id=-1;
+            }
+            Log.e("SerUpl","fitxer = "+WFMmodel.getFileName(id));
+        }
+        else{
+            Log.e("SerUpl","no hi ha fitxers per pujar"+fitxer);
+        }
+        return id;
     }
 }

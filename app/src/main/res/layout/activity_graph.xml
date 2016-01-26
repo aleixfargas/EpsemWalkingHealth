@@ -6,6 +6,13 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="epsem.walkinghealth.GraphActivity">
 
+    <TextView
+        android:id="@+id/batterylevel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="0%">
+    </TextView>
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"

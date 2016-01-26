@@ -19,7 +19,16 @@ public class MainActivity extends Activity implements BLEConnectionListener {
     public MainActivity main_activity = null;
     private Button btnConnect;
     public ArrayList<String> MACaddrArray = new ArrayList<>();
-    //public String MACaddr_right = "F8:08:97:8B:45:29";
+    //G2
+    //public String MACaddr_right = "FE:15:A6:64:56:D2";
+
+    // G1
+    //public String MACaddr_right = "C7:C6:B3:FB:67:ED";
+
+    //Our
+    public String MACaddr_right = "D6:1A:9F:67:E5:8C";
+    public String MACaddr_left = "DC:1F:61:B6:FE:27";
+    //public String MACaddr_left = "F8:08:97:8B:45:29";
     //public String MACaddr_right = "DD:81:3C:77:F6:52";
 
     public BLEConnection BleConnection = null;
@@ -42,8 +51,9 @@ public class MainActivity extends Activity implements BLEConnectionListener {
         setContentView(R.layout.activity_main);
 
         main_activity = this;
-        this.MACaddrArray.add(RADINO_RIGHT, "C3:EE:DD:D5:E8:CB");
-        this.MACaddrArray.add(RADINO_LEFT, "F8:08:97:8B:45:29");
+
+        this.MACaddrArray.add(RADINO_RIGHT, MACaddr_right);
+        this.MACaddrArray.add(RADINO_LEFT, MACaddr_left);
 
         createConnectButton();
     }
@@ -92,8 +102,6 @@ public class MainActivity extends Activity implements BLEConnectionListener {
 
     @Override
     public void onStatusUpdated(String MACaddr, Integer newStatus){
-        Log.e("BLElistener", "radino_status=" + newStatus);
-
         switch (newStatus){
             case DEVICE_DISCONNECTED:
                 status = 0;
@@ -130,7 +138,7 @@ public class MainActivity extends Activity implements BLEConnectionListener {
                 //Starting a new Intent
                 nextScreen = new Intent(getApplicationContext(), GraphActivity.class);
                 //startActivity(nextScreen);
-                startActivityForResult(nextScreen,1);
+                this.startActivityForResult(nextScreen, 1);
                 break;
 
             case DEVICE_DISCONNECTING:
@@ -148,9 +156,20 @@ public class MainActivity extends Activity implements BLEConnectionListener {
         }
     }
 
-
+    public void onActivityResult(int status){
+        if(status == 1){
+            this.status = 0;
+            connect_status = "Connect";
+            btnConnect.post(new Runnable() {
+                public void run() {
+                    btnConnect.setText(connect_status);
+                }
+            });
+        }
+    }
     @Override
-    public void onDataReceived(String MACaddr, AccelData result){}
+    public void onDataReceived(String MACaddr, ArrayList<AccelData> result, int batteryState) {
+    }
 
 
     public void createConnectButton() {

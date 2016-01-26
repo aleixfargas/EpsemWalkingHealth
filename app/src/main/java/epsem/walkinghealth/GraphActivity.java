@@ -12,22 +12,35 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import android.os.FileObserver;
+import android.widget.TextView;
+
+import epsem.walkinghealth.common.utils;
 
 public class GraphActivity extends Activity implements BLEConnectionListener {
+
     public Button btnClearGraph;
+    public TextView batteryLevel;
     public GraphChart graph = null;
     public BLEConnection BleConnection = null;
     public WriteFileManager writeFileManager = null;
-
-    public Boolean locked = false;
+    public ServerUploader upload = null;
+    public Boolean locked = false, lock_server = false;
+    public ConnectivityManager connManager = null;
+    public NetworkInfo mWifi = null;
     private ArrayList<AccelData> results = new ArrayList<>();
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
+    private int num = 0;
+
+
+    public static final Integer RADINO_RIGHT = 0;
+    public static final Integer RADINO_LEFT = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +50,21 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
         createGraph();
 
         createClearGraphButton();
+
+        /*
+        Runnable task = new Runnable() {
+            public void run() {
+                graph.clear();
+                graph.update();
+            }
+        };
+        worker.scheduleAtFixedRate(task, 50, 30, TimeUnit.SECONDS);
+        */
+
+        this.batteryLevel = (TextView) findViewById(R.id.batterylevel);
+
         this.writeFileManager = new WriteFileManager(this);
+        this.upload = new ServerUploader(this);
         upload();
     }
 
@@ -87,21 +114,28 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
     }
 
     @Override
-    public void onDataReceived(String MACaddr, AccelData result) {
-        Double x = result.x;
-        Double y = result.y;
-        Double z = result.z;
+    public void onDataReceived(String MACaddr, ArrayList<AccelData> result, int batteryState) {
+        for(int i = 0; i < 6; i++){
+            Double x = result.get(i).x;
+            Double y = result.get(i).y;
+            Double z = result.get(i).z;
 
-        if(!locked) {
-            utils.log("GraphActivity","writting "+result.toString());
-            this.results.add(result);
+            if(!locked) {
+                utils.log("GraphActivity", "writting " + result.toString());
+                this.results.add(result.get(i));
+            }
+            //updateBattery(batteryState);
+
+            graph.toString();
+            graph.add(System.currentTimeMillis(), x, y, z);
+            graph.update();
         }
-
-        graph.toString();
-        graph.add(System.currentTimeMillis(), x, y, z);
-        graph.update();
     }
 
+
+    public void updateBattery(int level){
+        batteryLevel.setText(level+"%");
+    }
 
     public void createGraph() {
         android.widget.LinearLayout layout;
@@ -119,6 +153,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
             @Override
             public void onClick(View v) {
                 graph.clear();
+                graph.update();
             }
         });
     }
@@ -127,15 +162,16 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
     public void upload(){
         Runnable task = new Runnable() {
             public void run() {
-                ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo mWifi = connManager.getActiveNetworkInfo();
-                if (mWifi.isConnected()) {
-                    ServerUploader upload = new ServerUploader();
-                    upload.execute();
+                if(!lock_server) {
+                    connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    mWifi = connManager.getActiveNetworkInfo();
+                    if (mWifi.isConnected()) {
+                        upload.execute();
+                    }
                 }
             }
         };
-        worker.scheduleAtFixedRate(task, 1, 1, TimeUnit.MINUTES);
+        worker.scheduleAtFixedRate(task, 1, 45, TimeUnit.SECONDS);
     }
 
     /**
