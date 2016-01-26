@@ -51,12 +51,15 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
 
         createClearGraphButton();
 
+        /*
         Runnable task = new Runnable() {
             public void run() {
                 graph.clear();
+                graph.update();
             }
         };
         worker.scheduleAtFixedRate(task, 50, 30, TimeUnit.SECONDS);
+        */
 
         this.batteryLevel = (TextView) findViewById(R.id.batterylevel);
 
