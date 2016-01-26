@@ -54,21 +54,22 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         //HTTP Post - Connexió persistent
         id = -1;
         try {
-            Log.e("SerUpl","init");
+            Log.e("SerUpl", "init");
 
             this.url = new URL(urlServer);
-           //HTTP Post - Connexió persistent
+            //HTTP Post - Connexió persistent
             StartConnection();
             Log.e("SerUpl", "Trace1");
 
-           //Lectura del fitxer
-           folder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/");
-           Log.e("SerUpl","folder: "+folder);
-           id = getFileid();
-           Log.e("SerUpl","fileId: "+id);
-           if(id != -1) {
-               file = new File(folder, WFMmodel.getFileName(id));
-               if (file.exists()) {
+            //Lectura del fitxer
+            folder = new File(Environment.getExternalStorageDirectory(), "WalkingHealth/");
+            Log.e("SerUpl","folder: "+folder);
+            id = getFileid();
+            //id = 11;
+            Log.e("SerUpl","fileId: "+id);
+            if(id != -1) {
+                file = new File(folder, WFMmodel.getFileName(id));
+                if (file.exists()) {
                    fileInputStream = new FileInputStream(file);
                    readFile();
 
@@ -78,13 +79,14 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
                    outputChannel();
 
                    //Transmissió fitxer
-                   transmitFile();
-                   WFMmodel.setUploaded(id);
+                   if(transmitFile() == 200) {
+                       WFMmodel.setUploaded(id);
 
-                   //Elimina fitxer
-                   if (connection.getResponseCode() == 200) {
-                       boolean deleted = file.delete();
-                       Log.e("SerUpl", "fitxer pujat i eliminat: " + deleted);
+                       //Elimina fitxer
+                       if (connection.getResponseCode() == 200) {
+                           boolean deleted = file.delete();
+                           Log.e("SerUpl", "fitxer pujat i eliminat: " + deleted);
+                       }
                    }
                }
                else {
@@ -124,7 +126,8 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         outputStream.writeBytes("\r\n");
     }
 
-    private void transmitFile() throws IOException{
+    private int transmitFile() throws IOException{
+        int r;
         while (bytesRead > 0) {
             outputStream.write(buffer, 0, bufferSize);
             bytesAvailable = fileInputStream.available();
@@ -134,11 +137,15 @@ public class ServerUploader extends AsyncTask<Void, Void, Void> {
         }
         outputStream.writeBytes("\r\n");
         outputStream.writeBytes("--" + boundary + "--" + "\r\n");
+
+        r = connection.getResponseCode();
         Log.e("SerUpl", "Server response code: " + connection.getResponseCode());
         Log.e("SerUpl", "Server response msg: " + connection.getResponseMessage());
         fileInputStream.close();
         outputStream.flush();
         outputStream.close();
+
+        return r;
     }
 
 

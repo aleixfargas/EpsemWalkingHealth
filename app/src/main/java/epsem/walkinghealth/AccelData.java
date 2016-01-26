@@ -17,7 +17,7 @@ public class AccelData {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.usuari = 1;
+        this.usuari = 2;
         this.sensor = sensor;
     }
 

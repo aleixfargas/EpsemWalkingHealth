@@ -56,7 +56,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
                 graph.clear();
             }
         };
-        worker.scheduleAtFixedRate(task, 30, 30, TimeUnit.SECONDS);
+        worker.scheduleAtFixedRate(task, 50, 30, TimeUnit.SECONDS);
 
         this.batteryLevel = (TextView) findViewById(R.id.batterylevel);
 
@@ -121,8 +121,7 @@ public class GraphActivity extends Activity implements BLEConnectionListener {
                 utils.log("GraphActivity", "writting " + result.toString());
                 this.results.add(result.get(i));
             }
-
-            updateBattery(batteryState);
+            //updateBattery(batteryState);
 
             graph.toString();
             graph.add(System.currentTimeMillis(), x, y, z);
